@@ -8,9 +8,10 @@ from schemas import User
 app = FastAPI()
 
 # Nomearei o identificador com "pk", para evitar possíveis problemas, pois "id" é um palavra reservada do Python.
+# Usarei "uuid" como chave primária, em vez de "int auto increment", por questões de segurança da aplicação; Esse valor deve ser gerado pelo SGBD.
 users = {
     1: {
-        'pk': str(uuid.uuid4()),  # Esse valor deve ser gerado pelo SGBD
+        'pk': str(uuid.uuid4()),
         'email': 'arthur@email.com',
         'first_name': 'arthur',
         'last_name': 'morgan',
