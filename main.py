@@ -45,11 +45,11 @@ users = {
 }
 
 
-# Padrão de nomenclatura dos endpoints: "/resources".
+# Padrão de nomenclatura dos endpoints: "/api/v1/resources".
 # "/" + nome do recurso (substantivo) em que a operação está sendo realizada, sem "/" no final.
 # Tanto singular "/resource", quanto plural "/resources", são aceitos, mas é importante seguir o padrão escolhido para todos os endpoints.
 @app.get(
-    '/users',
+    '/api/v1/users',
     # Passar "-> List[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
     response_model=List[User],
     status_code=status.HTTP_200_OK,
@@ -67,7 +67,7 @@ async def get_users():
 
 
 @app.get(
-    '/users/{pk}',
+    '/api/v1/users/{pk}',
     response_model=User,
     status_code=status.HTTP_200_OK,
     summary='Busca usuário',
