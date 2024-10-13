@@ -67,10 +67,14 @@ def get_user(pk: int) -> User:
         )
 
 
+# Adicionando esse trecho de código ao fim do arquivo main, ao chamar "$ python3 main.py",
+# temos o mesmo efeito que "$ uvicorn main:app --port 8081 --reload".
+# Outra forma de executar a aplicação, pelo menos em ambiente de dev, é usando "$ fastapi dev main.py"
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(
-        # TODO descobrir porque quando " reload=True ", não se pode usar " app=app ", sendo necessário o uso de " app='main:app' ".
+        # Em vez de passar 'main:app', pode-se passar a variável app.
+        # Mas quando passamos o parâmetro reload, é necessário que seja a string 'main:app'
         app='main:app',
         host=run_settings.get('HOST'),
         port=run_settings.get('PORT'),
