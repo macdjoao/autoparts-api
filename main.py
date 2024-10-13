@@ -17,8 +17,8 @@ app = FastAPI(
 # Ao usar uuid, perdemos peformance (um select realizado em uma coluna do tipo integer é mais rápido do que em uma coluna do tipo string/uuid);
 # Tambem perdemos um pouco de armazenamento, já que uma string/uuid precisa de mais espaço para armazenamento do que um integer;
 # No entanto, ganhamos em segurança, uma vez que dados como o número de registros de uma tabela não será facilmente identificado por agentes maliciosos.
-users = {
-    1: {
+users = [
+    {
         'pk': str(uuid.uuid4()),
         'email': 'arthur@email.com',
         'first_name': 'arthur',
@@ -26,7 +26,7 @@ users = {
         'password': 'pw',
         'role': 'admin'
     },
-    2: {
+    {
         'pk': str(uuid.uuid4()),
         'email': 'john@email.com',
         'first_name': 'john',
@@ -34,15 +34,15 @@ users = {
         'password': 'pw',
         'role': 'staff'
     },
-    3: {
+    {
         'pk': str(uuid.uuid4()),
         'email': 'jack@email.com',
         'first_name': 'jack',
         'last_name': 'marston',
         'password': 'pw',
         'role': 'staff'
-    },
-}
+    }
+]
 
 
 # Padrão de nomenclatura dos endpoints: "/api/v1/resources".
