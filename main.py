@@ -41,7 +41,7 @@ users = {
 # "/" + nome do recurso (substantivo) em que a operação está sendo realizada, sem "/" no final.
 # Tanto singular "/resource", quanto plural "/resources", são aceitos, mas é importante seguir o padrão escolhido para todos os endpoints.
 @app.get('/users')
-def get_users():
+async def get_users():
     try:
         return users
     except Exception:
@@ -52,7 +52,7 @@ def get_users():
 
 
 @app.get('/users/{pk}')
-def get_user(pk: int) -> User:
+async def get_user(pk: int) -> User:
     try:
         return users[pk]
     except KeyError:
