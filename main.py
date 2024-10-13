@@ -69,7 +69,8 @@ async def get_users():
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
 )
-async def get_user(pk: int) -> User:
+# Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
+async def get_user(pk: int):
     try:
         return users[pk]
     except KeyError:
