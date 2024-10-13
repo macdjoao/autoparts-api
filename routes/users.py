@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import JSONResponse
 
 from schemas import User
 from models import users
@@ -23,10 +24,13 @@ router = APIRouter(
     summary='Lista usuários',
     description='Lista todos os usuários cadastrados no sistema'
 )
+# Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
 async def get_users():
     try:
-        return users
-    except Exception:
+        # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
+        return JSONResponse(content=users, status_code=status.HTTP_200_OK)
+    except Exception as exc:
+        print(exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
@@ -40,16 +44,16 @@ async def get_users():
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
 )
-# Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
 async def get_user(pk: int):
     try:
-        return users[pk]
+        return JSONResponse(content=users[pk], status_code=status.HTTP_200_OK)
     except KeyError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with pk {pk} not found'
         )
-    except Exception:
+    except Exception as exc:
+        print(exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
