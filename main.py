@@ -6,7 +6,11 @@ from fastapi import FastAPI, HTTPException, status
 from constants import run_settings
 from schemas import User
 
-app = FastAPI()
+app = FastAPI(
+    title='AutoParts API',
+    summary='Sistema de gerenciamento de estoque de autopeças',
+    version='0.0.1'
+)
 
 # Nomearei o identificador com "pk", para evitar possíveis problemas, pois "id" é um palavra reservada do Python.
 # Usarei "uuid" como chave primária, em vez de "int auto increment", esse valor deve ser gerado pelo BD.
