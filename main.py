@@ -1,3 +1,4 @@
+from typing import List
 import uuid
 
 from fastapi import FastAPI, HTTPException, status
@@ -43,7 +44,14 @@ users = {
 # Padrão de nomenclatura dos endpoints: "/resources".
 # "/" + nome do recurso (substantivo) em que a operação está sendo realizada, sem "/" no final.
 # Tanto singular "/resource", quanto plural "/resources", são aceitos, mas é importante seguir o padrão escolhido para todos os endpoints.
-@app.get('/users')
+@app.get(
+    '/users',
+    # Passar "-> List[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
+    response_model=List[User],
+    status_code=status.HTTP_200_OK,
+    summary='Lista usuários',
+    description='Lista todos os usuários cadastrados no sistema'
+)
 async def get_users():
     try:
         return users
@@ -54,7 +62,13 @@ async def get_users():
         )
 
 
-@app.get('/users/{pk}')
+@app.get(
+    '/users/{pk}',
+    response_model=User,
+    status_code=status.HTTP_200_OK,
+    summary='Busca usuário',
+    description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
+)
 async def get_user(pk: int) -> User:
     try:
         return users[pk]
