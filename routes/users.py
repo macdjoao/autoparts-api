@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 # from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções
 
-from schemas import User
+from schemas.users import User
 from models import users
 
 
