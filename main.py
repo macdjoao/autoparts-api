@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from constants import run_settings
-from routes import users
+from routes import router
 
 app = FastAPI(
     title='AutoParts API',
@@ -9,7 +9,7 @@ app = FastAPI(
     version='0.0.1'
 )
 
-app.include_router(users.router)
+app.include_router(router.router)
 
 # Adicionando esse trecho de código ao fim do arquivo main, ao chamar "$ python3 main.py",
 # temos o mesmo efeito que "$ uvicorn main:app --port 8081 --reload".
