@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     APP_PORT: str = int(os.getenv('APP_PORT'))
     APP_RELOAD: bool = eval(os.getenv('APP_RELOAD'))
     URI_PREFIX: str = str(os.getenv('URI_PREFIX'))
+    DB_URL: str = f'postgresql+psycopg2://{str(os.getenv('DB_USER'))}:{str(os.getenv('DB_PASSWORD'))}@{str(os.getenv('DB_HOST'))}:{str(os.getenv('DB_PORT'))}/{str(os.getenv('DB_NAME'))}'
 
     class Config:
         case_sensitive = True
