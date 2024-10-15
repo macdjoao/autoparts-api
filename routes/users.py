@@ -1,12 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 # from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções
+from sqlmodel import Session, select
 
-from schemas.users import User
-from models import users
+from settings.database import get_session
+from models.users import User
 
 
 router = APIRouter(
@@ -27,15 +28,12 @@ router = APIRouter(
     description='Lista todos os usuários cadastrados no sistema'
 )
 # Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
-async def get_users():
+async def get_users(session: Session = Depends(get_session)):
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
-        for user in users:
-            if type(user) != User:
-                user = User(**user)
-        return JSONResponse(content=jsonable_encoder(users), status_code=status.HTTP_200_OK)
-    except Exception as exc:
-        print(exc)
+        query = session.exec(select(User)).all()
+        return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
@@ -49,19 +47,16 @@ async def get_users():
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
 )
-async def get_user(pk: int):
+async def get_user(pk: str, session: Session = Depends(get_session)):
     try:
-        user = users[pk-1]
-        response = User(**user).model_dump()
-        return JSONResponse(content=response, status_code=status.HTTP_200_OK)
-    except IndexError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with pk {pk} not found'
-        )
-    except Exception as exc:
-        print(exc)
-        print(type(exc))
+        query = session.exec(select(User).where(User.pk == pk)).first()
+        return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
+    # except KeyError:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail=f'User with pk {pk} not found'
+    #     )
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
@@ -75,13 +70,12 @@ async def get_user(pk: int):
     summary='Cadastra usuário',
     description='Cadastra um novo usuário no sistema.'
 )
-async def post_user(user: User):
+async def post_user(user: User, session: Session = Depends(get_session)):
     try:
-        users.append(user)
-        response: User = users[-1]
-        return JSONResponse(content=response.model_dump(), status_code=status.HTTP_201_CREATED)
-    except Exception as exc:
-        print(exc)
+        session.add(user)
+        session.commit()
+        return JSONResponse(content=jsonable_encoder(user), status_code=status.HTTP_201_CREATED)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
