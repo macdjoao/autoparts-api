@@ -1,26 +1,26 @@
 from fastapi import FastAPI
 
-from constants import run_settings
+from settings.settings import settings
 from routes import router
 
 app = FastAPI(
     title='AutoParts API',
     summary='Sistema de gerenciamento de estoque de autopeças',
-    version='0.0.1'
+    version=settings.APP_VERSION
 )
 
 app.include_router(router.router)
 
 # Adicionando esse trecho de código ao fim do arquivo main, ao chamar "$ python3 main.py",
-# temos o mesmo efeito que "$ uvicorn main:app --port 8081 --reload".
+# temos o mesmo efeito que "$ uvicorn main:app --port 8000 --reload".
 # Outra forma de executar a aplicação, pelo menos em ambiente de dev, é usando "$ fastapi dev main.py"
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(
         # Em vez de passar 'main:app', pode-se passar a variável app.
         # Mas quando passamos o parâmetro reload, é necessário que seja a string 'main:app'
-        app='main:app',
-        host=run_settings.get('HOST'),
-        port=run_settings.get('PORT'),
-        reload=run_settings.get('RELOAD')
+        app=settings.APP,
+        host=settings.APP_HOST,
+        port=settings.APP_PORT,
+        reload=settings.APP_RELOAD
     )
