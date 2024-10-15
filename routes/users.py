@@ -30,6 +30,9 @@ router = APIRouter(
 async def get_users():
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
+        for user in users:
+            if type(user) != User:
+                user = User(**user)
         return JSONResponse(content=jsonable_encoder(users), status_code=status.HTTP_200_OK)
     except Exception as exc:
         print(exc)
