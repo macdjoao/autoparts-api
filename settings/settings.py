@@ -1,5 +1,3 @@
-import os
-
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
@@ -7,14 +5,23 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 
 
+# A classe BaseSettings do Pydantic já lê o arquivo .env, não sendo necessário os.getenv('ENVVAR')
 class Settings(BaseSettings):
     APP: str = 'main:app'
-    APP_VERSION: str = str(os.getenv('APP_VERSION'))
-    APP_HOST: str = str(os.getenv('APP_HOST'))
-    APP_PORT: str = int(os.getenv('APP_PORT'))
-    APP_RELOAD: bool = eval(os.getenv('APP_RELOAD'))
-    URI_PREFIX: str = str(os.getenv('URI_PREFIX'))
-    DB_URL: str = f'postgresql+psycopg2://{str(os.getenv('DB_USER'))}:{str(os.getenv('DB_PASSWORD'))}@{str(os.getenv('DB_HOST'))}:{str(os.getenv('DB_PORT'))}/{str(os.getenv('DB_NAME'))}'
+    APP_VERSION: str
+    APP_HOST: str
+    APP_PORT: int
+    APP_RELOAD: bool
+    URI_PREFIX: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_PORT: str
+    DB_NAME: str
+
+    @property
+    def DB_URL(self) -> str:
+        return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     class Config:
         case_sensitive = True
