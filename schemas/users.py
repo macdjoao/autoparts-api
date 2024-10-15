@@ -23,3 +23,10 @@ class User(BaseModel):
     @classmethod
     def capitalize_names(cls, v: str) -> str:
         return v.capitalize()
+
+    @field_validator('password')
+    @classmethod
+    def validate_password_length(cls, v: str) -> str:
+        if len(v) < 5:
+            raise ValueError('password must have at least 5 characters')
+        return v
