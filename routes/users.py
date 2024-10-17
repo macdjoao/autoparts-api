@@ -22,7 +22,7 @@ router = APIRouter(
 @router.get(
     '',
     # Passar "-> list[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
-    response_model=list[User],
+    response_model=list[UserPublic],
     status_code=status.HTTP_200_OK,
     summary='Lista usuários',  # A documentação Swagger será escrita em português
     description='Lista todos os usuários cadastrados no sistema'
@@ -42,7 +42,7 @@ async def get_users(session: Session = Depends(get_session)):
 
 @router.get(
     '/{pk}',
-    response_model=User,
+    response_model=UserPublic,
     status_code=status.HTTP_200_OK,
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
