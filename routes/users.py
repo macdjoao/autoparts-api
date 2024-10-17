@@ -24,7 +24,7 @@ router = APIRouter(
     # Passar "-> List[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
     response_model=List[User],
     status_code=status.HTTP_200_OK,
-    summary='Lista usuários',
+    summary='Lista usuários',  # A documentação Swagger será escrita em português
     description='Lista todos os usuários cadastrados no sistema'
 )
 # Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
@@ -50,12 +50,12 @@ async def get_users(session: Session = Depends(get_session)):
 async def get_user(pk: str, session: Session = Depends(get_session)):
     try:
         query = session.exec(select(User).where(User.pk == pk)).first()
-        return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
-    # except KeyError:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail=f'User with pk {pk} not found'
-    #     )
+        if query:
+            return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User with pk {pk} not found'
+        )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
