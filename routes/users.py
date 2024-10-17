@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session, select
 
 from settings.database import get_session
-from models.users import User
+from models.users import User, UserCreate, UserPublic
 
 
 router = APIRouter(
@@ -65,17 +65,18 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
 
 @router.post(
     '',
-    response_model=User,
+    response_model=UserPublic,
     status_code=status.HTTP_201_CREATED,
     summary='Cadastra usuário',
     description='Cadastra um novo usuário no sistema.'
 )
-async def post_user(user: User, session: Session = Depends(get_session)):
+async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     try:
-        session.add(user)
+        db_user = User.model_validate(user)
+        session.add(db_user)
         session.commit()
-        session.refresh(user)
-        return JSONResponse(content=jsonable_encoder(user), status_code=status.HTTP_201_CREATED)
+        session.refresh(db_user)
+        return JSONResponse(content=jsonable_encoder(db_user), status_code=status.HTTP_201_CREATED)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
