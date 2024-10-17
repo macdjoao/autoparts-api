@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
@@ -47,7 +48,7 @@ async def get_users(session: Session = Depends(get_session)):
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
 )
-async def get_user(pk: str, session: Session = Depends(get_session)):
+async def get_user(pk: UUID, session: Session = Depends(get_session)):
     try:
         query = session.exec(select(User).where(User.pk == pk)).first()
         if query:
