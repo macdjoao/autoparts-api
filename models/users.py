@@ -1,11 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
-from sqlalchemy import Column, DateTime
+from pydantic import EmailStr
 from sqlmodel import SQLModel, Field
 
+# Only inherit from data models, don't inherit from table models. (https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/#inheritance-and-table-models)
 
-class User(SQLModel, table=True):
+
+class UserBase(SQLModel):
+    email: EmailStr
+    first_name: str
+    last_name: str
+
+
+class User(UserBase, table=True):
     __tablename__ = 'users'
 
     pk: uuid.UUID = Field(
@@ -15,19 +23,21 @@ class User(SQLModel, table=True):
         nullable=False
     )
     is_active: bool = Field(default=True)
-    first_name: str
-    created_at: datetime = Field(sa_column=Column(
-        DateTime(timezone=True), default=datetime.now()))
-    updated_at: datetime = Field(sa_column=Column(
-        DateTime(timezone=True), onupdate=datetime.now(), default=datetime.now()))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(
+        timezone.utc), nullable=False, sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
 
 
-# from datetime import datetime
-# from typing import Optional
-# import uuid
+class UserCreate(UserBase):
+    pass
 
-# from pydantic import BaseModel, EmailStr, field_validator
 
+class UserPublic(UserBase):
+    pk: uuid.UUID
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
 # class UserSchema(BaseModel):
 #     # Para trafegar dados do tipo data, usarei strings com formatação ISO-8601, padrão que RESTful segue
