@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import uuid
 
-from pydantic import EmailStr
+from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field
 
 # Only inherit from data models, don't inherit from table models. (https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/#inheritance-and-table-models)
@@ -11,6 +11,11 @@ class UserBase(SQLModel):
     email: EmailStr
     first_name: str
     last_name: str
+
+    @field_validator('first_name', 'last_name')
+    @classmethod
+    def capitalize_names(cls, v: str) -> str:
+        return v.capitalize()
 
 
 class User(UserBase, table=True):
