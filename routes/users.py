@@ -33,7 +33,8 @@ async def get_users(session: Session = Depends(get_session)):
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
         query = session.exec(select(User)).all()
         return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
-    except Exception:
+    except Exception as exc:
+        print(exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
@@ -56,7 +57,10 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with pk {pk} not found'
         )
-    except Exception:
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
+        print(exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
@@ -77,7 +81,8 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
         session.commit()
         session.refresh(db_user)
         return JSONResponse(content=jsonable_encoder(db_user), status_code=status.HTTP_201_CREATED)
-    except Exception:
+    except Exception as exc:
+        print(exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Internal Server Error'
