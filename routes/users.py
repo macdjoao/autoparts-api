@@ -75,6 +75,7 @@ async def post_user(user: User, session: Session = Depends(get_session)):
     try:
         session.add(user)
         session.commit()
+        session.refresh(user)
         return JSONResponse(content=jsonable_encoder(user), status_code=status.HTTP_201_CREATED)
     except Exception:
         raise HTTPException(
