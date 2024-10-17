@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
@@ -22,8 +21,8 @@ router = APIRouter(
 # Tanto singular "/resource", quanto plural "/resources", são aceitos, mas é importante seguir o padrão escolhido para todos os endpoints.
 @router.get(
     '',
-    # Passar "-> List[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
-    response_model=List[User],
+    # Passar "-> list[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
+    response_model=list[User],
     status_code=status.HTTP_200_OK,
     summary='Lista usuários',  # A documentação Swagger será escrita em português
     description='Lista todos os usuários cadastrados no sistema'
