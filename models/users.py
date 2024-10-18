@@ -44,6 +44,12 @@ class UserPublic(UserBase):
     created_at: datetime
     updated_at: datetime
 
+
+class UserUpdate(UserBase):
+    email: EmailStr | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+
 # class UserSchema(BaseModel):
 #     # Para trafegar dados do tipo data, usarei strings com formatação ISO-8601, padrão que RESTful segue
 #     pk: Optional[str] = str(uuid.uuid4)
