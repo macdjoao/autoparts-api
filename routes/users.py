@@ -97,6 +97,9 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     description='Atualiza um usuário previamente cadastrado no sistema.'
 )
 async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_session)):
+    # Caso o client queira atualizar o valor de algum campo para None, deve passar no request {"key": null}
+    # Se a chave não for informada, o valor não é alterado
+    # https://sqlmodel.tiangolo.com/tutorial/fastapi/update/#update-the-hero-in-the-database
     try:
         db_user = session.get(User, pk)
         if db_user:
