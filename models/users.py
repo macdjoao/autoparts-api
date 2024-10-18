@@ -32,10 +32,11 @@ class User(UserBase, table=True):
         default_factory=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(
         timezone.utc), nullable=False, sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
+    hashed_password: str = Field(nullable=False)
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 class UserPublic(UserBase):
@@ -49,6 +50,7 @@ class UserUpdate(UserBase):
     email: EmailStr | None = None
     first_name: str | None = None
     last_name: str | None = None
+    password: str | None = None
 
 # class UserSchema(BaseModel):
 #     # Para trafegar dados do tipo data, usarei strings com formatação ISO-8601, padrão que RESTful segue
