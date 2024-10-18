@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session, select
 
 from settings.database import get_session
-from models.users import User, UserCreate, UserPublic
+from models.users import User, UserCreate, UserPublic, UserUpdate
 
 
 router = APIRouter(
@@ -81,6 +81,39 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
         session.commit()
         session.refresh(db_user)
         return JSONResponse(content=jsonable_encoder(db_user), status_code=status.HTTP_201_CREATED)
+    except Exception as exc:
+        print(exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Internal Server Error'
+        )
+
+
+@router.patch(
+    '/{pk}',
+    response_model=UserPublic,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary='Atualiza usuário',
+    description='Atualiza um usuário previamente cadastrado no sistema.'
+)
+async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_session)):
+    try:
+        db_user = session.get(User, pk)
+        if db_user:
+            user_data = user.model_dump(exclude_unset=True)
+            db_user.sqlmodel_update(user_data)
+            session.add(db_user)
+            session.commit()
+            session.refresh(db_user)
+            # Se a transação der certo, o FastAPI automaticamente retorna o status_code especificado no decorator
+            # Se a transação der certo, o FastAPI automaticamente instancia o retorno no response_model especificado no decorator
+            return db_user
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User with pk {pk} not found'
+        )
+    except HTTPException as exc:
+        raise exc
     except Exception as exc:
         print(exc)
         raise HTTPException(
