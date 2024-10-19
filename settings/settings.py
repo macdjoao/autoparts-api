@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
     DB_NAME: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 1 * 1  # (minutos * horas * dias)
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    ALGORITHM: str
+    JWT_SECRET_KEY: str
+    JWT_REFRESH_SECRET_KEY: str
 
     @property
     def DB_URL(self) -> str:
