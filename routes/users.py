@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-# from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções
+# from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções - https://sqlmodel.tiangolo.com/tutorial/fastapi/limit-and-offset/
 from sqlmodel import Session, select
 
 from settings.database import get_session
@@ -111,6 +111,33 @@ async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_
             # Se a transação der certo, o FastAPI automaticamente retorna o status_code especificado no decorator
             # Se a transação der certo, o FastAPI automaticamente instancia o retorno no response_model especificado no decorator
             return db_user
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'User with pk {pk} not found'
+        )
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
+        print(exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Internal Server Error'
+        )
+
+
+@router.delete(
+    '/{pk}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Deleta usuário',
+    description='Deleta um usuário previamente cadastrado no sistema.'
+)
+async def delete_user(pk: UUID, session: Session = Depends(get_session)):
+    try:
+        db_user = session.get(User, pk)
+        if db_user:
+            session.delete(db_user)
+            session.commit()
+            return JSONResponse(content={'detail': 'User deleted.'})
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with pk {pk} not found'
