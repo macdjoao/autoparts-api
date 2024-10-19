@@ -7,6 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session, select
 
 from settings.database import get_session
+from settings.security import get_password_hash
 from models.users import User, UserCreate, UserPublic, UserUpdate
 
 
@@ -76,11 +77,13 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
 )
 async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     try:
-        db_user = User.model_validate(user)
+        hashed_password = get_password_hash(user.password)
+        extra_data = {'hashed_password': hashed_password}
+        db_user = User.model_validate(user, update=extra_data)
         session.add(db_user)
         session.commit()
         session.refresh(db_user)
-        return JSONResponse(content=jsonable_encoder(db_user), status_code=status.HTTP_201_CREATED)
+        return db_user
     except Exception as exc:
         print(exc)
         raise HTTPException(
@@ -104,7 +107,12 @@ async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_
         db_user = session.get(User, pk)
         if db_user:
             user_data = user.model_dump(exclude_unset=True)
-            db_user.sqlmodel_update(user_data)
+            extra_data = {}
+            if 'password' in user_data:
+                extra_data['hashed_password'] = get_password_hash(
+                    user_data.get('password')
+                )
+            db_user.sqlmodel_update(user_data, update=extra_data)
             session.add(db_user)
             session.commit()
             session.refresh(db_user)
