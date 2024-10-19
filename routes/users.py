@@ -1,8 +1,6 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 # from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções - https://sqlmodel.tiangolo.com/tutorial/fastapi/limit-and-offset/
 from sqlmodel import Session, select
 
@@ -24,7 +22,6 @@ router = APIRouter(
     '',
     # Passar "-> list[User]" como retorno na assinatura da função teria o mesmo efeito que response_model
     response_model=list[UserPublic],
-    status_code=status.HTTP_200_OK,
     summary='Lista usuários',  # A documentação Swagger será escrita em português
     description='Lista todos os usuários cadastrados no sistema'
 )
@@ -32,8 +29,8 @@ router = APIRouter(
 async def get_users(session: Session = Depends(get_session)):
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
-        query = session.exec(select(User)).all()
-        return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
+        db_users = session.exec(select(User)).all()
+        return db_users
     except Exception as exc:
         print(exc)
         raise HTTPException(
@@ -51,9 +48,9 @@ async def get_users(session: Session = Depends(get_session)):
 )
 async def get_user(pk: UUID, session: Session = Depends(get_session)):
     try:
-        query = session.exec(select(User).where(User.pk == pk)).first()
-        if query:
-            return JSONResponse(content=jsonable_encoder(query), status_code=status.HTTP_200_OK)
+        db_user = session.exec(select(User).where(User.pk == pk)).first()
+        if db_user:
+            return db_user
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with pk {pk} not found'
@@ -145,7 +142,7 @@ async def delete_user(pk: UUID, session: Session = Depends(get_session)):
         if db_user:
             session.delete(db_user)
             session.commit()
-            return JSONResponse(content={'detail': 'User deleted.'})
+            return {'ok': True}
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'User with pk {pk} not found'
