@@ -8,7 +8,7 @@ from sqlmodel import SQLModel, Field
 
 
 class UserBase(SQLModel):
-    email: EmailStr
+    email: EmailStr = Field(unique=True)
     first_name: str
     last_name: str
 
