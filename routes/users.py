@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException, status, Depends
 # from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções - https://sqlmodel.tiangolo.com/tutorial/fastapi/limit-and-offset/
 from sqlmodel import Session, select
 
-from settings.database import get_session
-from settings.security import get_password_hash
+from utils.database import get_session
+from utils.security import get_password_hash
 from models.users import User, UserCreate, UserPublic, UserUpdate
 from utils.exceptions import raise_internal_server_error_exception, raise_pk_not_found_exception
 
