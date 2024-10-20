@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 from settings.database import get_session
 from settings.security import get_password_hash
 from models.users import User, UserCreate, UserPublic, UserUpdate
+from utils.exceptions import raise_internal_server_error_exception, raise_pk_not_found_exception
 
 
 router = APIRouter(
@@ -31,12 +32,8 @@ async def get_users(session: Session = Depends(get_session)):
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
         db_users = session.exec(select(User)).all()
         return db_users
-    except Exception as exc:
-        print(exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Internal Server Error'
-        )
+    except Exception:
+        raise_internal_server_error_exception()
 
 
 @router.get(
@@ -48,21 +45,14 @@ async def get_users(session: Session = Depends(get_session)):
 )
 async def get_user(pk: UUID, session: Session = Depends(get_session)):
     try:
-        db_user = session.exec(select(User).where(User.pk == pk)).first()
+        db_user = session.get(User, pk)
         if db_user:
             return db_user
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with pk {pk} not found'
-        )
+        raise_pk_not_found_exception(pk=pk)
     except HTTPException as exc:
         raise exc
-    except Exception as exc:
-        print(exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Internal Server Error'
-        )
+    except Exception:
+        raise_internal_server_error_exception()
 
 
 @router.post(
@@ -81,12 +71,8 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
         session.commit()
         session.refresh(db_user)
         return db_user
-    except Exception as exc:
-        print(exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Internal Server Error'
-        )
+    except Exception:
+        raise_internal_server_error_exception()
 
 
 @router.patch(
@@ -116,18 +102,11 @@ async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_
             # Se a transação der certo, o FastAPI automaticamente retorna o status_code especificado no decorator
             # Se a transação der certo, o FastAPI automaticamente instancia o retorno no response_model especificado no decorator
             return db_user
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with pk {pk} not found'
-        )
+        raise_pk_not_found_exception(pk=pk)
     except HTTPException as exc:
         raise exc
-    except Exception as exc:
-        print(exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Internal Server Error'
-        )
+    except Exception:
+        raise_internal_server_error_exception()
 
 
 @router.delete(
@@ -143,15 +122,8 @@ async def delete_user(pk: UUID, session: Session = Depends(get_session)):
             session.delete(db_user)
             session.commit()
             return {'ok': True}
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'User with pk {pk} not found'
-        )
+        raise_pk_not_found_exception(pk=pk)
     except HTTPException as exc:
         raise exc
-    except Exception as exc:
-        print(exc)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Internal Server Error'
-        )
+    except Exception:
+        raise_internal_server_error_exception()
