@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 from utils.database import get_session
 from utils.security import get_password_hash
 from models.users import User, UserCreate, UserPublic, UserUpdate
-from utils.exceptions import raise_internal_server_error_exception, raise_pk_not_found_exception
+from utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
 
 
 router = APIRouter(
@@ -64,6 +64,10 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
 )
 async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     try:
+        email_already_registered = session.exec(
+            select(User).where(User.email == user.email))
+        if email_already_registered:
+            raise raise_email_already_registered_exception(email=user.email)
         hashed_password = get_password_hash(user.password)
         extra_data = {'hashed_password': hashed_password}
         db_user = User.model_validate(user, update=extra_data)
@@ -71,7 +75,9 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
         session.commit()
         session.refresh(db_user)
         return db_user
-    except Exception:
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
         raise_internal_server_error_exception()
 
 
