@@ -17,3 +17,11 @@ def raise_pk_not_found_exception(pk: int) -> HTTPException:
         detail=f'No record with pk {pk}',
     )
     raise not_found_exception
+
+
+def raise_email_already_registered_exception(email: str) -> HTTPException:
+    email_already_registered_exception = HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f'Email {email} already registered',
+    )
+    raise email_already_registered_exception
