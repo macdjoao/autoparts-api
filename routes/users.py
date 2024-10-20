@@ -65,7 +65,7 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
 async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     try:
         email_already_registered = session.exec(
-            select(User).where(User.email == user.email))
+            select(User).where(User.email == user.email)).first()
         if email_already_registered:
             raise raise_email_already_registered_exception(email=user.email)
         hashed_password = get_password_hash(user.password)
