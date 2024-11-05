@@ -5,6 +5,7 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
 from main import app
+from models.users import User
 from utils.database import get_session
 
 
@@ -14,7 +15,9 @@ from utils.database import get_session
 @pytest.fixture
 def session():
     engine = create_engine(
-        'sqlite://', connect_args={'check_same_thread': False}, poolclass=StaticPool
+        'sqlite://',
+        connect_args={'check_same_thread': False},
+        poolclass=StaticPool
     )
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
@@ -41,3 +44,19 @@ def fake():
 @pytest.fixture
 def users_url():
     return '/api/v1/users'
+
+
+@pytest.fixture
+def create_user(fake, session):
+    def _create_user():
+        user = User(
+            email=fake.email(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            hashed_password=fake.password()
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
+    return _create_user

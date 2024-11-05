@@ -1,7 +1,5 @@
-from models.users import User
-
-
 def test_get_users(client, users_url):
+
     response = client.get(users_url)
     status_code = response.status_code
     content = response.json()
@@ -10,16 +8,9 @@ def test_get_users(client, users_url):
     assert isinstance(content, list)
 
 
-def test_get_user(fake, session, client, users_url):
-    user = User(
-        email=fake.email(),
-        first_name=fake.first_name(),
-        last_name=fake.last_name(),
-        hashed_password=fake.password()
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
+def test_get_user(client, users_url, create_user):
+
+    user = create_user()
 
     response = client.get(f'{users_url}/{user.pk}')
     status_code = response.status_code
@@ -36,6 +27,7 @@ def test_get_user(fake, session, client, users_url):
 
 
 def test_post_user(client, fake, users_url):
+
     json = {
         'email': fake.email(),
         'first_name': fake.first_name(),
