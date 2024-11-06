@@ -42,11 +42,6 @@ def fake():
 
 
 @pytest.fixture
-def users_url():
-    return '/api/v1/users'
-
-
-@pytest.fixture
 def create_user(fake, session):
     def _create_user():
         user = User(
