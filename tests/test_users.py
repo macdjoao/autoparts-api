@@ -29,6 +29,16 @@ def test_get_user(client, create_user):
     assert 'updated_at' in content
 
 
+def test_get_user_422(client, fake):
+
+    invalid_pk = fake.word()
+
+    response = client.get(f'{users_url}/{invalid_pk}')
+    status_code = response.status_code
+
+    assert status_code == 422
+
+
 def test_post_user(client, fake):
 
     json = {
