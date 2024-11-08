@@ -72,3 +72,29 @@ def test_post_user_201_created(client, fake):
     assert 'is_active' in content
     assert 'created_at' in content
     assert 'updated_at' in content
+
+
+def test_post_user_409_email_already_registered(client, fake, create_specific_user):
+
+    email = fake.email()
+
+    create_specific_user(
+        email=email,
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        hashed_password=fake.password()
+    )
+
+    json = {
+        'email': email,
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'password': fake.password()
+    }
+
+    response = client.post(url=users_url, json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 409
+    assert content['detail'] == f'Email {email} already registered'
