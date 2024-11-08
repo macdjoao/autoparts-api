@@ -127,7 +127,7 @@ async def delete_user(pk: UUID, session: Session = Depends(get_session)):
         if db_user:
             session.delete(db_user)
             session.commit()
-            return {'ok': True}
+            return  # O retorno de um endpoint de verbo DELETE deve ser apenas o status code
         raise_pk_not_found_exception(pk=pk)
     except HTTPException as exc:
         raise exc
