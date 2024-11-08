@@ -98,3 +98,22 @@ def test_post_user_409_email_already_registered(client, fake, create_specific_us
 
     assert status_code == 409
     assert content['detail'] == f'Email {email} already registered'
+
+
+def test_post_user_422_invalid_email(client, fake):
+
+    email = fake.word()
+
+    json = {
+        'email': email,
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'password': fake.password()
+    }
+
+    response = client.post(url=users_url, json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 422
+    assert content['detail'][0]['msg'] == f'value is not a valid email address: An email address must have an @-sign.'
