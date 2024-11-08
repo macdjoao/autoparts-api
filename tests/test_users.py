@@ -1,7 +1,7 @@
 users_url = '/api/v1/users'
 
 
-def test_get_users(client):
+def test_get_users_200(client):
 
     response = client.get(users_url)
     status_code = response.status_code
@@ -11,7 +11,7 @@ def test_get_users(client):
     assert isinstance(content, list)
 
 
-def test_get_user(client, create_user):
+def test_get_user_200(client, create_user):
 
     user = create_user()
 
@@ -39,7 +39,7 @@ def test_get_user_422(client, fake):
     assert status_code == 422
 
 
-def test_post_user(client, fake):
+def test_post_user_201(client, fake):
 
     json = {
         'email': fake.email(),
