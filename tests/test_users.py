@@ -39,6 +39,18 @@ def test_get_user_422(client, fake):
     assert status_code == 422
 
 
+def test_get_user_404(client, fake):
+
+    random_valid_pk = fake.uuid4()
+
+    response = client.get(f'{users_url}/{random_valid_pk}')
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 404
+    assert content['detail'] == f'No record with pk {random_valid_pk}'
+
+
 def test_post_user_201(client, fake):
 
     json = {
