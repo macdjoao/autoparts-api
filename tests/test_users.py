@@ -1,7 +1,7 @@
 users_url = '/api/v1/users'
 
 
-def test_get_users_200(client):
+def test_get_users_200_ok(client):
 
     response = client.get(users_url)
     status_code = response.status_code
@@ -11,7 +11,7 @@ def test_get_users_200(client):
     assert isinstance(content, list)
 
 
-def test_get_user_200(client, create_user):
+def test_get_user_200_ok(client, create_user):
 
     user = create_user()
 
@@ -29,7 +29,7 @@ def test_get_user_200(client, create_user):
     assert 'updated_at' in content
 
 
-def test_get_user_422(client, fake):
+def test_get_user_422_invalid_pk(client, fake):
 
     invalid_pk = fake.word()
 
@@ -39,7 +39,7 @@ def test_get_user_422(client, fake):
     assert status_code == 422
 
 
-def test_get_user_404(client, fake):
+def test_get_user_404_pk_not_found(client, fake):
 
     random_valid_pk = fake.uuid4()
 
@@ -51,7 +51,7 @@ def test_get_user_404(client, fake):
     assert content['detail'] == f'No record with pk {random_valid_pk}'
 
 
-def test_post_user_201(client, fake):
+def test_post_user_201_created(client, fake):
 
     json = {
         'email': fake.email(),
