@@ -55,3 +55,21 @@ def create_user(fake, session):
         session.refresh(user)
         return user
     return _create_user
+
+
+@pytest.fixture
+# Recebe outras fixtures como parametro
+def create_specific_user(session):
+    # Recebe parametros "comuns"
+    def _create_specific_user(email, first_name, last_name, hashed_password):
+        user = User(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            hashed_password=hashed_password
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
+    return _create_specific_user
