@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 load_dotenv()
@@ -7,6 +7,9 @@ load_dotenv()
 
 # A classe BaseSettings do Pydantic já lê o arquivo .env, não sendo necessário os.getenv('ENVVAR')
 class Settings(BaseSettings):
+
+    model_config = SettingsConfigDict(env_file='.env')
+
     APP: str = 'main:app'
     APP_VERSION: str
     APP_HOST: str
@@ -25,10 +28,6 @@ class Settings(BaseSettings):
     @property
     def DB_URL(self) -> str:
         return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-
-    class Config:
-        case_sensitive = True
-        env_file = '.env'
 
 
 settings: Settings = Settings()
