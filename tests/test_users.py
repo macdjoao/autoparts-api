@@ -117,3 +117,22 @@ def test_post_user_422_invalid_email(client, fake):
 
     assert status_code == 422
     assert content['detail'][0]['msg'] == f'value is not a valid email address: An email address must have an @-sign.'
+
+
+def test_patch_user_202_accepted(client, create_user, fake):
+
+    user = create_user()
+
+    json = {
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name()
+    }
+
+    response = client.patch(url=f'{users_url}/{user.pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 202
+    assert content['first_name'] == json['first_name']
+    assert content['last_name'] == json['last_name']
+    assert content['updated_at'] > content['created_at']
