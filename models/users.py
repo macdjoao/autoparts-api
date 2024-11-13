@@ -31,7 +31,7 @@ class User(UserBase, table=True):
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(
-        timezone.utc), nullable=False, sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
+        timezone.utc), nullable=False, sa_column_kwargs={'onupdate': lambda: datetime.now(timezone.utc)})
     hashed_password: str = Field(nullable=False)
 
 
@@ -51,6 +51,13 @@ class UserUpdate(UserBase):
     first_name: str | None = None
     last_name: str | None = None
     password: str | None = None
+
+    @field_validator('email')
+    @classmethod
+    def email_not_none(cls, v: EmailStr | None) -> EmailStr | None:
+        if v is None:
+            raise ValueError('email field cannot be null')
+        return v
 
 # class UserSchema(BaseModel):
 #     # Para trafegar dados do tipo data, usarei strings com formatação ISO-8601, padrão que RESTful segue
