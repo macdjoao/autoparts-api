@@ -136,3 +136,20 @@ def test_patch_user_202_accepted(client, create_user, fake):
     assert content['first_name'] == json['first_name']
     assert content['last_name'] == json['last_name']
     assert content['updated_at'] > content['created_at']
+
+
+def test_patch_user_409_email_already_registered(client, create_user):
+
+    first_user = create_user()
+    second_user = create_user()
+
+    json = {
+        'email': first_user.email
+    }
+
+    response = client.patch(url=f'{users_url}/{second_user.pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 409
+    assert content['detail'] == f'Email {first_user.email} already registered'
