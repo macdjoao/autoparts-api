@@ -153,3 +153,19 @@ def test_patch_user_409_email_already_registered(client, create_user):
 
     assert status_code == 409
     assert content['detail'] == f'Email {first_user.email} already registered'
+
+
+def test_patch_user_422_email_not_null(client, create_user):
+
+    user = create_user()
+
+    json = {
+        'email': None
+    }
+
+    response = client.patch(url=f'{users_url}/{user.pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 422
+    assert content['detail'][0]['msg'] == 'Value error, email field cannot be null'
