@@ -93,22 +93,37 @@ async def patch_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_
     # Se a chave não for informada, o valor não é alterado
     # https://sqlmodel.tiangolo.com/tutorial/fastapi/update/#update-the-hero-in-the-database
     try:
+
         db_user = session.get(User, pk)
-        if db_user:
-            user_data = user.model_dump(exclude_unset=True)
-            extra_data = {}
-            if 'password' in user_data:
-                extra_data['hashed_password'] = get_password_hash(
-                    user_data.get('password')
-                )
-            db_user.sqlmodel_update(user_data, update=extra_data)
-            session.add(db_user)
-            session.commit()
-            session.refresh(db_user)
-            # Se a transação der certo, o FastAPI automaticamente retorna o status_code especificado no decorator
-            # Se a transação der certo, o FastAPI automaticamente instancia o retorno no response_model especificado no decorator
-            return db_user
-        raise_pk_not_found_exception(pk=pk)
+        if not db_user:
+            raise_pk_not_found_exception(pk=pk)
+
+        if user.email:
+            email_already_registered = session.exec(
+                select(User).where(User.email == user.email, User.pk != pk)
+            ).first()
+            if email_already_registered:
+                raise raise_email_already_registered_exception(
+                    email=user.email)
+
+        user_data = user.model_dump(exclude_unset=True)
+        extra_data = {}
+
+        if 'password' in user_data:
+            extra_data['hashed_password'] = get_password_hash(
+                user_data.pop('password')
+            )
+
+        db_user.sqlmodel_update(user_data, update=extra_data)
+
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+
+        # Se a transação der certo, o FastAPI automaticamente retorna o status_code especificado no decorator
+        # Se a transação der certo, o FastAPI automaticamente instancia o retorno no response_model especificado no decorator
+        return db_user
+
     except HTTPException as exc:
         raise exc
     except Exception:
