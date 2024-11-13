@@ -6,7 +6,7 @@ from sqlmodel.pool import StaticPool
 
 from main import app
 from models.users import User
-from utils.database import get_session
+from utils.dependencies import get_session
 
 
 # @pytest.fixture(name='fixture_name')
