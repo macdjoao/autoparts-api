@@ -191,3 +191,59 @@ def test_delete_user_404_pk_not_found(client, fake):
 
     assert status_code == 404
     assert content['detail'] == f'No record with pk {random_valid_pk}'
+
+
+def test_put_user_200_ok(client, create_user, fake):
+
+    user = create_user()
+
+    json = {
+        'email': fake.email(),
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name()
+    }
+
+    response = client.put(url=f'{users_url}/{user.pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 200
+    assert content['email'] == json['email']
+    assert content['first_name'] == json['first_name']
+    assert content['last_name'] == json['last_name']
+    assert content['updated_at'] > content['created_at']
+
+
+def test_put_user_404_pk_not_found(client, fake):
+
+    random_valid_pk = fake.uuid4()
+
+    json = {
+        'email': fake.email(),
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name()
+    }
+
+    response = client.put(f'{users_url}/{random_valid_pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 404
+    assert content['detail'] == f'No record with pk {random_valid_pk}'
+
+
+def test_put_user_422_missing_fields(client, create_user, fake):
+
+    user = create_user()
+
+    json = {
+        'email': fake.email(),
+    }
+
+    response = client.put(f'{users_url}/{user.pk}', json=json)
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 422
+    assert len(content['detail']) == 2
+    assert content['detail'][0]['type'] == 'missing'
