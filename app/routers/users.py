@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
@@ -5,7 +6,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import Session, select
 
 from app.utils.dependencies import get_session
-from app.utils.security import get_password_hash
+from app.utils.security import get_current_active_user, get_password_hash
 from app.models.users import User, UserCreate, UserPublic, UserUpdate, UserPartialUpdate
 from app.utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
 
@@ -27,7 +28,10 @@ router = APIRouter(
     description='Lista todos os usuários cadastrados no sistema'
 )
 # Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
-async def get_users(session: Session = Depends(get_session)):
+async def get_users(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session)
+):
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
         db_users = session.exec(select(User)).all()
@@ -43,7 +47,11 @@ async def get_users(session: Session = Depends(get_session)):
     summary='Busca usuário',
     description='Busca um usuário cadastrado no sistema, baseado em sua chave primária'
 )
-async def get_user(pk: UUID, session: Session = Depends(get_session)):
+async def get_user(
+    pk: UUID,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session),
+):
     try:
         db_user = session.get(User, pk)
         if db_user:
@@ -62,7 +70,11 @@ async def get_user(pk: UUID, session: Session = Depends(get_session)):
     summary='Cadastra usuário',
     description='Cadastra um novo usuário no sistema.'
 )
-async def post_user(user: UserCreate, session: Session = Depends(get_session)):
+async def post_user(
+    user: UserCreate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session)
+):
     try:
         email_already_registered = session.exec(
             select(User).where(User.email == user.email)).first()
@@ -87,7 +99,12 @@ async def post_user(user: UserCreate, session: Session = Depends(get_session)):
     summary='Atualiza usuário',
     description='Atualiza um usuário previamente cadastrado no sistema.'
 )
-async def put_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_session)):
+async def put_user(
+    pk: UUID,
+    user: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session)
+):
     try:
 
         db_user = session.get(User, pk)
@@ -124,7 +141,12 @@ async def put_user(pk: UUID, user: UserUpdate, session: Session = Depends(get_se
     summary='Atualiza parcialmente um usuário',
     description='Atualiza parcialmente um usuário previamente cadastrado no sistema.'
 )
-async def patch_user(pk: UUID, user: UserPartialUpdate, session: Session = Depends(get_session)):
+async def patch_user(
+    pk: UUID,
+    user: UserPartialUpdate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session)
+):
     # Caso o client queira atualizar o valor de algum campo para None, deve passar no request {"key": null}
     # Se a chave não for informada, o valor não é alterado
     # https://sqlmodel.tiangolo.com/tutorial/fastapi/update/#update-the-hero-in-the-database
@@ -172,7 +194,11 @@ async def patch_user(pk: UUID, user: UserPartialUpdate, session: Session = Depen
     summary='Deleta usuário',
     description='Deleta um usuário previamente cadastrado no sistema.'
 )
-async def delete_user(pk: UUID, session: Session = Depends(get_session)):
+async def delete_user(
+    pk: UUID,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    session: Session = Depends(get_session)
+):
     try:
         db_user = session.get(User, pk)
         if db_user:
