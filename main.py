@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from settings.settings import settings
-from routes import router
+from routers import router
 
 app = FastAPI(
     title='AutoParts API',
