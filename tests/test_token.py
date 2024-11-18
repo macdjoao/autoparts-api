@@ -16,16 +16,12 @@ def test_post_token_202_accepted(client, create_specific_user, fake):
         hashed_password=get_password_hash(password)
     )
 
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-
     data = {
         'username': email,
         'password': password
     }
 
-    response = client.post(url=token_url, data=data, headers=headers)
+    response = client.post(url=token_url, data=data)
     status_code = response.status_code
     content = response.json()
 
@@ -36,16 +32,12 @@ def test_post_token_202_accepted(client, create_specific_user, fake):
 
 def test_post_token_401_incorrect_email_or_password(client, fake):
 
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-
     data = {
         'username': fake.email(),
         'password': fake.password()
     }
 
-    response = client.post(url=token_url, data=data, headers=headers)
+    response = client.post(url=token_url, data=data)
     status_code = response.status_code
     content = response.json()
 
