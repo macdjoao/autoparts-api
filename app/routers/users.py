@@ -98,7 +98,7 @@ async def post_user(
     response_model=UserPublic,
     summary='Atualiza usuário',
     description='Atualiza um usuário previamente cadastrado no sistema.'
-)
+)  # PUT deve receber em seu request todos os campos que podem ser alterados (exceto senha), diferente do PATCH, que é usado para atualizações parciais
 async def put_user(
     pk: UUID,
     user: UserUpdate,
