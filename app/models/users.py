@@ -47,6 +47,12 @@ class UserPublic(UserBase):
 
 
 class UserUpdate(UserBase):
+    email: EmailStr
+    first_name: str
+    last_name: str
+
+
+class UserPartialUpdate(UserBase):
     email: EmailStr | None = None
     first_name: str | None = None
     last_name: str | None = None
@@ -58,29 +64,3 @@ class UserUpdate(UserBase):
         if v is None:
             raise ValueError('email field cannot be null')
         return v
-
-# class UserSchema(BaseModel):
-#     # Para trafegar dados do tipo data, usarei strings com formatação ISO-8601, padrão que RESTful segue
-#     pk: Optional[str] = str(uuid.uuid4)
-#     is_active: Optional[bool] = True
-#     created_by: Optional[str] = None
-#     created_at: Optional[str] = datetime.now().isoformat()
-#     updated_by: Optional[str] = None
-#     updated_at: Optional[str] = datetime.now().isoformat()
-#     email: EmailStr
-#     first_name: str
-#     last_name: str
-#     password: str
-#     role: str
-
-#     @field_validator('first_name', 'last_name')
-#     @classmethod
-#     def capitalize_names(cls, v: str) -> str:
-#         return v.capitalize()
-
-#     @field_validator('password')
-#     @classmethod
-#     def validate_password_length(cls, v: str) -> str:
-#         if len(v) < 5:
-#             raise ValueError('password must have at least 5 characters')
-#         return v
