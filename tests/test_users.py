@@ -169,3 +169,25 @@ def test_patch_user_422_email_not_null(client, create_user):
 
     assert status_code == 422
     assert content['detail'][0]['msg'] == 'Value error, email field cannot be null'
+
+
+def test_delete_user_204_no_content(client, create_user):
+
+    user = create_user()
+
+    response = client.delete(url=f'{users_url}/{user.pk}')
+    status_code = response.status_code
+
+    assert status_code == 204
+
+
+def test_delete_user_404_pk_not_found(client, fake):
+
+    random_valid_pk = fake.uuid4()
+
+    response = client.delete(f'{users_url}/{random_valid_pk}')
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 404
+    assert content['detail'] == f'No record with pk {random_valid_pk}'
