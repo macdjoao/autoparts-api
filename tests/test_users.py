@@ -1,9 +1,11 @@
 users_url = '/api/v1/users'
 
 
-def test_get_users_200_ok(client):
+def test_get_users_200_ok(client, token):
 
-    response = client.get(users_url)
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.get(url=users_url, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -11,11 +13,12 @@ def test_get_users_200_ok(client):
     assert isinstance(content, list)
 
 
-def test_get_user_200_ok(client, create_user):
+def test_get_user_200_ok(client, create_user, token):
 
     user = create_user()
+    headers = {'Authorization': f'Bearer {token()}'}
 
-    response = client.get(f'{users_url}/{user.pk}')
+    response = client.get(url=f'{users_url}/{user.pk}', headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -29,29 +32,33 @@ def test_get_user_200_ok(client, create_user):
     assert 'updated_at' in content
 
 
-def test_get_user_422_invalid_pk(client, fake):
+def test_get_user_422_invalid_pk(client, fake, token):
 
     invalid_pk = fake.word()
+    headers = {'Authorization': f'Bearer {token()}'}
 
-    response = client.get(f'{users_url}/{invalid_pk}')
+    response = client.get(url=f'{users_url}/{invalid_pk}', headers=headers)
     status_code = response.status_code
 
     assert status_code == 422
 
 
-def test_get_user_404_pk_not_found(client, fake):
+def test_get_user_404_pk_not_found(client, fake, token):
 
-    random_valid_pk = fake.uuid4()
+    valid_pk = fake.uuid4()
+    headers = {'Authorization': f'Bearer {token()}'}
 
-    response = client.get(f'{users_url}/{random_valid_pk}')
+    response = client.get(url=f'{users_url}/{valid_pk}', headers=headers)
     status_code = response.status_code
     content = response.json()
 
     assert status_code == 404
-    assert content['detail'] == f'No record with pk {random_valid_pk}'
+    assert content['detail'] == f'No record with pk {valid_pk}'
 
 
-def test_post_user_201_created(client, fake):
+def test_post_user_201_created(client, fake, token):
+
+    headers = {'Authorization': f'Bearer {token()}'}
 
     json = {
         'email': fake.email(),
@@ -60,7 +67,7 @@ def test_post_user_201_created(client, fake):
         'password': fake.password()
     }
 
-    response = client.post(url=users_url, json=json)
+    response = client.post(url=users_url, json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -74,7 +81,7 @@ def test_post_user_201_created(client, fake):
     assert 'updated_at' in content
 
 
-def test_post_user_409_email_already_registered(client, fake, create_specific_user):
+def test_post_user_409_email_already_registered(client, fake, create_specific_user, token):
 
     email = fake.email()
 
@@ -85,6 +92,8 @@ def test_post_user_409_email_already_registered(client, fake, create_specific_us
         hashed_password=fake.password()
     )
 
+    headers = {'Authorization': f'Bearer {token()}'}
+
     json = {
         'email': email,
         'first_name': fake.first_name(),
@@ -92,7 +101,7 @@ def test_post_user_409_email_already_registered(client, fake, create_specific_us
         'password': fake.password()
     }
 
-    response = client.post(url=users_url, json=json)
+    response = client.post(url=users_url, json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -100,9 +109,11 @@ def test_post_user_409_email_already_registered(client, fake, create_specific_us
     assert content['detail'] == f'Email {email} already registered'
 
 
-def test_post_user_422_invalid_email(client, fake):
+def test_post_user_422_invalid_email(client, fake, token):
 
     email = fake.word()
+
+    headers = {'Authorization': f'Bearer {token()}'}
 
     json = {
         'email': email,
@@ -111,7 +122,7 @@ def test_post_user_422_invalid_email(client, fake):
         'password': fake.password()
     }
 
-    response = client.post(url=users_url, json=json)
+    response = client.post(url=users_url, json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -119,7 +130,7 @@ def test_post_user_422_invalid_email(client, fake):
     assert content['detail'][0]['msg'] == f'value is not a valid email address: An email address must have an @-sign.'
 
 
-def test_patch_user_202_accepted(client, create_user, fake):
+def test_patch_user_202_accepted(client, create_user, fake, token):
 
     user = create_user()
 
@@ -128,7 +139,10 @@ def test_patch_user_202_accepted(client, create_user, fake):
         'last_name': fake.last_name()
     }
 
-    response = client.patch(url=f'{users_url}/{user.pk}', json=json)
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.patch(
+        url=f'{users_url}/{user.pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -138,16 +152,19 @@ def test_patch_user_202_accepted(client, create_user, fake):
     assert content['updated_at'] > content['created_at']
 
 
-def test_patch_user_409_email_already_registered(client, create_user):
+def test_patch_user_409_email_already_registered(client, create_user, token):
 
     first_user = create_user()
     second_user = create_user()
+
+    headers = {'Authorization': f'Bearer {token()}'}
 
     json = {
         'email': first_user.email
     }
 
-    response = client.patch(url=f'{users_url}/{second_user.pk}', json=json)
+    response = client.patch(
+        url=f'{users_url}/{second_user.pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -155,15 +172,18 @@ def test_patch_user_409_email_already_registered(client, create_user):
     assert content['detail'] == f'Email {first_user.email} already registered'
 
 
-def test_patch_user_422_email_not_null(client, create_user):
+def test_patch_user_422_email_not_null(client, create_user, token):
 
     user = create_user()
+
+    headers = {'Authorization': f'Bearer {token()}'}
 
     json = {
         'email': None
     }
 
-    response = client.patch(url=f'{users_url}/{user.pk}', json=json)
+    response = client.patch(
+        url=f'{users_url}/{user.pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -171,21 +191,26 @@ def test_patch_user_422_email_not_null(client, create_user):
     assert content['detail'][0]['msg'] == 'Value error, email field cannot be null'
 
 
-def test_delete_user_204_no_content(client, create_user):
+def test_delete_user_204_no_content(client, create_user, token):
 
     user = create_user()
 
-    response = client.delete(url=f'{users_url}/{user.pk}')
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.delete(url=f'{users_url}/{user.pk}', headers=headers)
     status_code = response.status_code
 
     assert status_code == 204
 
 
-def test_delete_user_404_pk_not_found(client, fake):
+def test_delete_user_404_pk_not_found(client, fake, token):
 
     random_valid_pk = fake.uuid4()
 
-    response = client.delete(f'{users_url}/{random_valid_pk}')
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.delete(
+        url=f'{users_url}/{random_valid_pk}', headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -193,7 +218,7 @@ def test_delete_user_404_pk_not_found(client, fake):
     assert content['detail'] == f'No record with pk {random_valid_pk}'
 
 
-def test_put_user_200_ok(client, create_user, fake):
+def test_put_user_200_ok(client, create_user, fake, token):
 
     user = create_user()
 
@@ -203,7 +228,10 @@ def test_put_user_200_ok(client, create_user, fake):
         'last_name': fake.last_name()
     }
 
-    response = client.put(url=f'{users_url}/{user.pk}', json=json)
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.put(
+        url=f'{users_url}/{user.pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -214,7 +242,7 @@ def test_put_user_200_ok(client, create_user, fake):
     assert content['updated_at'] > content['created_at']
 
 
-def test_put_user_404_pk_not_found(client, fake):
+def test_put_user_404_pk_not_found(client, fake, token):
 
     random_valid_pk = fake.uuid4()
 
@@ -224,7 +252,10 @@ def test_put_user_404_pk_not_found(client, fake):
         'last_name': fake.last_name()
     }
 
-    response = client.put(f'{users_url}/{random_valid_pk}', json=json)
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.put(
+        f'{users_url}/{random_valid_pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
@@ -232,7 +263,7 @@ def test_put_user_404_pk_not_found(client, fake):
     assert content['detail'] == f'No record with pk {random_valid_pk}'
 
 
-def test_put_user_422_missing_fields(client, create_user, fake):
+def test_put_user_422_missing_fields(client, create_user, fake, token):
 
     user = create_user()
 
@@ -240,7 +271,9 @@ def test_put_user_422_missing_fields(client, create_user, fake):
         'email': fake.email(),
     }
 
-    response = client.put(f'{users_url}/{user.pk}', json=json)
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.put(f'{users_url}/{user.pk}', json=json, headers=headers)
     status_code = response.status_code
     content = response.json()
 
