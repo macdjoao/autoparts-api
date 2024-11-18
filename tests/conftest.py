@@ -7,6 +7,7 @@ from sqlmodel.pool import StaticPool
 from app.main import app
 from app.models.users import User
 from app.utils.dependencies import get_session
+from app.utils.security import get_password_hash
 
 
 # @pytest.fixture(name='fixture_name')
@@ -48,7 +49,7 @@ def create_user(fake, session):
             email=fake.email(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
-            hashed_password=fake.password()
+            hashed_password=get_password_hash(fake.password())
         )
         session.add(user)
         session.commit()
@@ -66,10 +67,34 @@ def create_specific_user(session):
             email=email,
             first_name=first_name,
             last_name=last_name,
-            hashed_password=hashed_password
+            hashed_password=get_password_hash(hashed_password)
         )
         session.add(user)
         session.commit()
         session.refresh(user)
         return user
     return _create_specific_user
+
+
+@pytest.fixture
+def token(create_specific_user, fake, client):
+    def _token():
+        password = fake.password()
+        user = create_specific_user(
+            email=fake.email(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            hashed_password=password
+        )
+
+        data = {
+            'username': user.email,
+            'password': password
+        }
+        response = client.post(
+            '/api/v1/auth/token',
+            data=data
+        )
+
+        return response.json()['access_token']
+    return _token
