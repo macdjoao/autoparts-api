@@ -1,9 +1,11 @@
 from datetime import timedelta
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
-from app.models.token import Login, Token
+from app.models.token import Token
 from app.models.users import User
 from app.settings.settings import settings
 from app.utils.dependencies import get_session
@@ -24,13 +26,13 @@ router = APIRouter(
     summary='Resgata token',
     description='Resgata token de acesso ao sistema.'
 )
-async def get_token(credentials: Login, session: Session = Depends(get_session)):
+async def get_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Session = Depends(get_session)):
     try:
         user = session.exec(select(User).where(
-            User.email == credentials.email)).first()
+            User.email == form_data.username)).first()
         if not user:
             raise_incorrect_email_or_password_exception()
-        authenticated = authenticate_user(user, credentials.password)
+        authenticated = authenticate_user(user, form_data.password)
         if not authenticated:
             raise_incorrect_email_or_password_exception()
         access_token_expires = timedelta(
