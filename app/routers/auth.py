@@ -3,12 +3,12 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
-from models.token import Login, Token
-from models.users import User
-from settings.settings import settings
-from utils.dependencies import get_session
-from utils.exceptions import raise_incorrect_email_or_password_exception, raise_internal_server_error_exception
-from utils.security import authenticate_user, create_access_token
+from app.models.token import Login, Token
+from app.models.users import User
+from app.settings.settings import settings
+from app.utils.dependencies import get_session
+from app.utils.exceptions import raise_incorrect_email_or_password_exception, raise_internal_server_error_exception
+from app.utils.security import authenticate_user, create_access_token
 
 
 router = APIRouter(

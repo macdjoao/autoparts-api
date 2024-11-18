@@ -4,9 +4,9 @@ from faker import Faker
 from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
-from main import app
-from models.users import User
-from utils.dependencies import get_session
+from app.main import app
+from app.models.users import User
+from app.utils.dependencies import get_session
 
 
 # @pytest.fixture(name='fixture_name')

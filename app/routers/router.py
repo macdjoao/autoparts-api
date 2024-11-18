@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from settings.settings import settings
-from routers import auth, users
+from app.settings.settings import settings
+from app.routers import auth, users
 
 
 # Arquivo criado para unificar as rotas dos endpoints
