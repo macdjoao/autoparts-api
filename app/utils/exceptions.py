@@ -30,6 +30,6 @@ def raise_email_already_registered_exception(email: str) -> HTTPException:
 def raise_incorrect_email_or_password_exception() -> HTTPException:
     incorrect_email_or_password_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        headers={'WWW-Authenticate': 'Bearer'}
+        detail='Incorrect email or password',
     )
     raise incorrect_email_or_password_exception
