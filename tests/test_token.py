@@ -1,6 +1,3 @@
-from app.utils.security import get_password_hash
-
-
 token_url = '/api/v1/auth/token'
 
 
@@ -13,7 +10,7 @@ def test_post_token_202_accepted(client, create_specific_user, fake):
         email=email,
         first_name=fake.first_name(),
         last_name=fake.last_name(),
-        hashed_password=get_password_hash(password)
+        hashed_password=password
     )
 
     data = {
