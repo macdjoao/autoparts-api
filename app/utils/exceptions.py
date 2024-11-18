@@ -33,3 +33,12 @@ def raise_incorrect_email_or_password_exception() -> HTTPException:
         detail='Incorrect email or password',
     )
     raise incorrect_email_or_password_exception
+
+
+def raise_credentials_exception() -> HTTPException:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Could not validate credentials',
+        headers={'WWW-Authenticate': 'Bearer'},
+    )
+    raise credentials_exception
