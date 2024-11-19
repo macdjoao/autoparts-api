@@ -1,4 +1,3 @@
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
@@ -29,7 +28,7 @@ router = APIRouter(
 )
 # Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
 async def get_users(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     filters: UserFilter = Depends(),
     session: Session = Depends(get_session)
 ):
@@ -61,7 +60,7 @@ async def get_users(
 )
 async def get_user(
     pk: UUID,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session),
 ):
     try:
@@ -84,7 +83,7 @@ async def get_user(
 )
 async def post_user(
     user: UserCreate,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session)
 ):
     try:
@@ -114,7 +113,7 @@ async def post_user(
 async def put_user(
     pk: UUID,
     user: UserUpdate,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session)
 ):
     try:
@@ -156,7 +155,7 @@ async def put_user(
 async def patch_user(
     pk: UUID,
     user: UserPartialUpdate,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session)
 ):
     # Caso o client queira atualizar o valor de algum campo para None, deve passar no request {"key": null}
@@ -208,7 +207,7 @@ async def patch_user(
 )
 async def delete_user(
     pk: UUID,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session)
 ):
     try:
