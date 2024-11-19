@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import Session, select
 
 from app.utils.dependencies import get_session
-from app.security.auth import get_current_active_user, get_password_hash
+from app.security.auth import get_current_active_user, get_password_hash, is_admin
 from app.models.users import User, UserCreate, UserFilter, UserPublic, UserUpdate, UserPartialUpdate
 from app.utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
 
@@ -85,7 +85,7 @@ async def get_user(
 )
 async def post_user(
     user: UserCreate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(is_admin),
     session: Session = Depends(get_session)
 ):
     try:
@@ -209,7 +209,7 @@ async def patch_user(
 )
 async def delete_user(
     pk: UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(is_admin),
     session: Session = Depends(get_session)
 ):
     try:
