@@ -104,7 +104,7 @@ def test_users_get_success_one(client, create_user, token):
 
 def test_users_post_success(client, fake, token):
 
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
     json = {
         'email': fake.email(),
         'first_name': fake.first_name(),
@@ -152,7 +152,7 @@ def test_users_patch_success(client, create_user, fake, token):
 def test_users_delete_success(client, create_user, token):
 
     user = create_user()
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
 
     response = client.delete(url=f'{users_url}/{user.pk}', headers=headers)
     status_code = response.status_code
@@ -203,7 +203,7 @@ def test_users_put_fail_missing_fields(client, create_user, fake, token):
 def test_users_all_fail_invalid_pk(client, fake, token):
 
     invalid_pk = fake.word()
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
 
     get = client.get(url=f'{users_url}/{invalid_pk}', headers=headers)
     put = client.put(url=f'{users_url}/{invalid_pk}', headers=headers)
@@ -224,7 +224,7 @@ def test_users_all_fail_invalid_pk(client, fake, token):
 def test_users_all_fail_pk_not_found(client, fake, token):
 
     valid_pk = fake.uuid4()
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
     # Prover json válido para PUT e PATCH não retornarem erro 422
     json = {
         'email': fake.email(),
@@ -262,7 +262,7 @@ def test_users_all_fail_email_already_registered(client, fake, create_specific_u
         hashed_password=fake.password()
     )
     user = create_user()
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
     json = {
         'email': email,
         'first_name': fake.first_name(),
@@ -291,7 +291,7 @@ def test_users_all_fail_invalid_email(client, fake, token, create_user):
 
     email = fake.word()
     user = create_user()
-    headers = {'Authorization': f'Bearer {token()}'}
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
     json = {
         'email': email,
         'first_name': fake.first_name(),
@@ -334,3 +334,29 @@ def test_users_all_fail_email_not_null(client, create_user, token):
 
     assert put.status_code == 422 and put_response == 'Input should be a valid string'
     assert patch.status_code == 422 and patch_response == 'Value error, email field cannot be null'
+
+
+def test_users_all_fail_not_admin(client, token, fake, create_user):
+
+    headers = {'Authorization': f'Bearer {token(is_admin=False)}'}
+    json = {
+        'email': fake.email(),
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'password': fake.password()
+    }
+    user = create_user()
+
+    post_response = client.post(url=users_url, json=json, headers=headers)
+    post_content = post_response.json()
+
+    delete_response = client.delete(
+        url=f'{users_url}/{user.pk}',
+        headers=headers
+    )
+    delete_content = delete_response.json()
+
+    assert post_response.status_code == 403
+    assert post_content['detail'] == 'Only admin users can perform this action'
+    assert delete_response.status_code == 403
+    assert delete_content['detail'] == 'Only admin users can perform this action'
