@@ -12,6 +12,7 @@ class UserBase(SQLModel):
     email: EmailStr = Field(unique=True)
     first_name: str
     last_name: str
+    is_admin: bool = Field(default=False)
 
     @field_validator('first_name', 'last_name')
     @classmethod
@@ -73,3 +74,4 @@ class UserFilter(BaseModel):
     first_name: Optional[str] = Field(None, description='Primeiro nome')
     last_name: Optional[str] = Field(None, description='Último nome')
     is_active: Optional[bool] = Field(True, description='Ativo')
+    is_admin: Optional[bool] = Field(False, description='Administrador')
