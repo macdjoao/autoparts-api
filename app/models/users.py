@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 import uuid
+from typing import Optional
 
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr, field_validator, BaseModel
 from sqlmodel import SQLModel, Field
 
 # Only inherit from data models, don't inherit from table models. (https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/#inheritance-and-table-models)
@@ -64,3 +65,11 @@ class UserPartialUpdate(UserBase):
         if v is None:
             raise ValueError('email field cannot be null')
         return v
+
+
+class UserFilter(BaseModel):
+    pk: Optional[uuid.UUID] = Field(None, description='Chave primária')
+    email: Optional[EmailStr] = Field(None, description='Email')
+    first_name: Optional[str] = Field(None, description='Primeiro nome')
+    last_name: Optional[str] = Field(None, description='Último nome')
+    is_active: Optional[bool] = Field(True, description='Ativo')
