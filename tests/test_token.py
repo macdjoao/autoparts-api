@@ -1,4 +1,5 @@
 token_url = '/api/v1/auth/token'
+users_url = '/api/v1/users'
 
 # Nomenclatura: test_recurso_verbo_informacaoExtra_resultado
 
@@ -38,3 +39,14 @@ def test_token_post_fail_incorrect_email_or_password(client, fake):
 
     assert response.status_code == 401
     assert content.get('detail') == 'Incorrect email or password'
+
+
+def test_token_post_fail_invalid_token(client, fake):
+
+    headers = {'Authorization': f'Bearer {fake.word()}'}
+
+    response = client.get(url=users_url, headers=headers)
+    content = response.json()
+
+    assert response.status_code == 401
+    assert content.get('detail') == 'Could not validate credentials'
