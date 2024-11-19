@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from app.utils.dependencies import get_session
 from app.utils.security import get_current_active_user, get_password_hash
-from app.models.users import User, UserCreate, UserPublic, UserUpdate, UserPartialUpdate
+from app.models.users import User, UserCreate, UserFilter, UserPublic, UserUpdate, UserPartialUpdate
 from app.utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
 
 
@@ -30,11 +30,23 @@ router = APIRouter(
 # Padrão de nomenclatura das funções de endpoint: verbo http + recurso (no plural para listagem, no singular para as demasi operações)
 async def get_users(
     current_user: Annotated[User, Depends(get_current_active_user)],
+    filters: UserFilter = Depends(),
     session: Session = Depends(get_session)
 ):
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
-        db_users = session.exec(select(User)).all()
+        query = select(User)
+        if filters.pk:
+            query = query.where(User.pk == filters.pk)
+        if filters.email:
+            query = query.where(User.email.contains(filters.email))
+        if filters.first_name:
+            query = query.where(User.first_name.contains(filters.first_name))
+        if filters.last_name:
+            query = query.where(User.last_name.contains(filters.last_name))
+        if filters.is_active is not None:
+            query = query.where(User.is_active == filters.is_active)
+        db_users = session.exec(query).all()
         return db_users
     except Exception:
         raise_internal_server_error_exception()
