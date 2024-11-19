@@ -1,7 +1,9 @@
 token_url = '/api/v1/auth/token'
 
+# Nomenclatura: test_recurso_verbo_informacaoExtra_resultado
 
-def test_success_post_token(client, create_specific_user, fake):
+
+def test_token_post_success(client, create_specific_user, fake):
 
     email = fake.email()
     password = fake.password()
@@ -24,7 +26,7 @@ def test_success_post_token(client, create_specific_user, fake):
     assert content.get('token_type') == 'bearer'
 
 
-def test_fail_post_token_incorrect_email_or_password(client, fake):
+def test_token_post_fail_incorrect_email_or_password(client, fake):
 
     data = {
         'username': fake.email(),
