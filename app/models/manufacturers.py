@@ -25,8 +25,13 @@ class Manufacturer(ManufacturerBase, table=True):
     )
     is_active: bool = Field(default=True)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), nullable=False)
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(
-        timezone.utc), nullable=False, sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)})
-    # created_by
-    # updated_by
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        sa_column_kwargs={'onupdate': lambda: datetime.now(timezone.utc)}
+    )
+    created_by: uuid.UUID = Field(foreign_key='users.pk')
+    updated_by: uuid.UUID = Field(foreign_key='users.pk')
