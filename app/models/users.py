@@ -74,4 +74,4 @@ class UserFilter(BaseModel):
     first_name: Optional[str] = Field(None, description='Primeiro nome')
     last_name: Optional[str] = Field(None, description='Último nome')
     is_active: Optional[bool] = Field(True, description='Ativo')
-    is_admin: Optional[bool] = Field(True, description='Administrador')
+    is_admin: Optional[bool] = Field(False, description='Administrador')
