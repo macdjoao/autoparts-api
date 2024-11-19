@@ -45,6 +45,8 @@ async def get_users(
             query = query.where(User.last_name.contains(filters.last_name))
         if filters.is_active is not None:
             query = query.where(User.is_active == filters.is_active)
+        if filters.is_admin is not None:
+            query = query.where(User.is_admin == filters.is_admin)
         db_users = session.exec(query).all()
         return db_users
     except Exception:
