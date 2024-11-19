@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
+from app.utils.create_admin import register_admin
 from app.utils.settings import settings
 from app.routers import router
+
 
 app = FastAPI(
     title='AutoParts API',
@@ -10,6 +12,12 @@ app = FastAPI(
 )
 
 app.include_router(router.router)
+
+
+@app.on_event('startup')
+def on_startup():
+    register_admin()
+
 
 # Adicionando esse trecho de código ao fim do arquivo main, ao chamar "$ python3 main.py",
 # temos o mesmo efeito que "$ uvicorn main:app --port 8000 --reload".
