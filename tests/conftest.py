@@ -102,13 +102,14 @@ def token(create_specific_user, fake, client):
 
 @pytest.fixture
 def create_named_user(session, fake):
-    def _create_named_user(first_name, is_active=True):
+    def _create_named_user(first_name, is_active=True, is_admin=False):
         user = User(
             email=fake.email(),
             first_name=first_name.capitalize(),
             last_name=fake.last_name(),
             hashed_password=get_password_hash(fake.password()),
-            is_active=is_active
+            is_active=is_active,
+            is_admin=is_admin
         )
         session.add(user)
         session.commit()
