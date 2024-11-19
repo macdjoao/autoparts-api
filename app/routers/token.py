@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -26,7 +25,7 @@ router = APIRouter(
     summary='Resgata token',
     description='Resgata token de acesso ao sistema.'
 )
-async def get_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Session = Depends(get_session)):
+async def get_token(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
     try:
         user = session.exec(select(User).where(
             User.email == form_data.username)).first()
