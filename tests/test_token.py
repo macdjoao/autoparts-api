@@ -17,10 +17,9 @@ def test_success_post_token(client, create_specific_user, fake):
     }
 
     response = client.post(url=token_url, data=data)
-    status_code = response.status_code
     content = response.json()
 
-    assert status_code == 202
+    assert response.status_code == 202
     assert isinstance(content.get('access_token'), str)
     assert content.get('token_type') == 'bearer'
 
@@ -33,8 +32,7 @@ def test_fail_post_token_incorrect_email_or_password(client, fake):
     }
 
     response = client.post(url=token_url, data=data)
-    status_code = response.status_code
     content = response.json()
 
-    assert status_code == 401
+    assert response.status_code == 401
     assert content.get('detail') == 'Incorrect email or password'
