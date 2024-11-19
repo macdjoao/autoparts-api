@@ -9,11 +9,10 @@ def test_users_get_success_list(client, create_user, token):
     headers = {'Authorization': f'Bearer {token()}'}
 
     response = client.get(url=users_url, headers=headers)
-    status_code = response.status_code
     content = response.json()
     user = content[0]
 
-    assert status_code == 200
+    assert response.status_code == 200
     assert isinstance(content, list)
     assert 'pk' in user
     assert 'created_at' in user
@@ -33,6 +32,7 @@ def test_users_get_success_list_filtered(client, create_named_user, token):
     john = create_named_user(first_name='john')  # first_name
     ada = create_named_user(first_name='ada')  # last_name
     finn = create_named_user(first_name='finn', is_active=False)  # is_active
+    polly = create_named_user(first_name='polly', is_admin=True)  # is_admin
 
     arthur_response = client.get(
         url=users_url, headers=headers, params={'pk': arthur.pk}
@@ -59,6 +59,11 @@ def test_users_get_success_list_filtered(client, create_named_user, token):
     )
     finn_content = finn_response.json()[0]
 
+    polly_response = client.get(
+        url=users_url, headers=headers, params={'is_admin': polly.is_admin}
+    )
+    polly_content = polly_response.json()[0]
+
     assert arthur_response.status_code == 200
     assert str(arthur.pk) == arthur_content.get('pk')
 
@@ -73,6 +78,9 @@ def test_users_get_success_list_filtered(client, create_named_user, token):
 
     assert finn_response.status_code == 200
     assert finn.is_active == finn_content.get('is_active')
+
+    assert polly_response.status_code == 200
+    assert polly.is_admin == polly_content.get('is_admin')
 
 
 def test_users_get_success_one(client, create_user, token):
