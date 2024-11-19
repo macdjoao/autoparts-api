@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 
 from app.models.token import TokenData
 from app.models.users import User
-from app.settings.settings import settings
+from app.utils.settings import settings
 from app.utils.dependencies import get_session
 from app.utils.exceptions import raise_credentials_exception
 

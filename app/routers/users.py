@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import Session, select
 
 from app.utils.dependencies import get_session
-from app.utils.security import get_current_active_user, get_password_hash
+from app.security.auth import get_current_active_user, get_password_hash
 from app.models.users import User, UserCreate, UserFilter, UserPublic, UserUpdate, UserPartialUpdate
 from app.utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
 

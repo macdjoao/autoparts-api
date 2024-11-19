@@ -7,7 +7,7 @@ from sqlmodel.pool import StaticPool
 from app.main import app
 from app.models.users import User
 from app.utils.dependencies import get_session
-from app.utils.security import get_password_hash
+from app.security.auth import get_password_hash
 
 
 # @pytest.fixture(name='fixture_name')

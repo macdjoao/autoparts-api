@@ -7,10 +7,10 @@ from sqlmodel import Session, select
 
 from app.models.token import Token
 from app.models.users import User
-from app.settings.settings import settings
+from app.utils.settings import settings
 from app.utils.dependencies import get_session
 from app.utils.exceptions import raise_incorrect_email_or_password_exception, raise_internal_server_error_exception
-from app.utils.security import authenticate_user, create_access_token
+from app.security.auth import authenticate_user, create_access_token
 
 
 router = APIRouter(

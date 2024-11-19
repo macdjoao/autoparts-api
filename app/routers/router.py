@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.settings.settings import settings
+from app.utils.settings import settings
 from app.routers import auth, users
 
 
