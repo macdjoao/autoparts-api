@@ -24,6 +24,57 @@ def test_users_get_success_list(client, create_user, token):
     assert 'is_active' in user
 
 
+def test_users_get_success_list_filtered(client, create_named_user, token):
+
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    arthur = create_named_user(first_name='arthur')  # pk
+    thomas = create_named_user(first_name='thomas')  # email
+    john = create_named_user(first_name='john')  # first_name
+    ada = create_named_user(first_name='ada')  # last_name
+    finn = create_named_user(first_name='finn', is_active=False)  # is_active
+
+    arthur_response = client.get(
+        url=users_url, headers=headers, params={'pk': arthur.pk}
+    )
+    arthur_content = arthur_response.json()[0]
+
+    thomas_response = client.get(
+        url=users_url, headers=headers, params={'email': thomas.email}
+    )
+    thomas_content = thomas_response.json()[0]
+
+    john_response = client.get(
+        url=users_url, headers=headers, params={'first_name': john.first_name}
+    )
+    john_content = john_response.json()[0]
+
+    ada_response = client.get(
+        url=users_url, headers=headers, params={'last_name': ada.last_name}
+    )
+    ada_content = ada_response.json()[0]
+
+    finn_response = client.get(
+        url=users_url, headers=headers, params={'is_active': finn.is_active}
+    )
+    finn_content = finn_response.json()[0]
+
+    assert arthur_response.status_code == 200
+    assert str(arthur.pk) == arthur_content.get('pk')
+
+    assert thomas_response.status_code == 200
+    assert thomas.email == thomas_content.get('email')
+
+    assert john_response.status_code == 200
+    assert john.first_name == john_content.get('first_name')
+
+    assert ada_response.status_code == 200
+    assert ada.last_name == ada_content.get('last_name')
+
+    assert finn_response.status_code == 200
+    assert finn.is_active == finn_content.get('is_active')
+
+
 def test_users_get_success_one(client, create_user, token):
 
     user = create_user()
