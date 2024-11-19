@@ -62,12 +62,13 @@ def create_user(fake, session):
 # Recebe outras fixtures como parametro
 def create_specific_user(session):
     # Recebe parametros "comuns"
-    def _create_specific_user(email, first_name, last_name, hashed_password):
+    def _create_specific_user(email, first_name, last_name, hashed_password, is_admin=False):
         user = User(
             email=email,
             first_name=first_name.capitalize(),
             last_name=last_name.capitalize(),
-            hashed_password=get_password_hash(hashed_password)
+            hashed_password=get_password_hash(hashed_password),
+            is_admin=is_admin
         )
         session.add(user)
         session.commit()
@@ -78,13 +79,14 @@ def create_specific_user(session):
 
 @pytest.fixture
 def token(create_specific_user, fake, client):
-    def _token():
+    def _token(is_admin=False):
         password = fake.password()
         user = create_specific_user(
             email=fake.email(),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
-            hashed_password=password
+            hashed_password=password,
+            is_admin=is_admin
         )
 
         data = {
