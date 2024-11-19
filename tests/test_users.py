@@ -1,7 +1,7 @@
 users_url = '/api/v1/users'
 
 
-def test_get_users_200_ok(client, create_user, token):
+def test_success_get_users(client, create_user, token):
 
     create_user()
     headers = {'Authorization': f'Bearer {token()}'}
@@ -22,7 +22,7 @@ def test_get_users_200_ok(client, create_user, token):
     assert 'is_active' in user
 
 
-def test_get_user_200_ok(client, create_user, token):
+def test_success_get_user(client, create_user, token):
 
     user = create_user()
     headers = {'Authorization': f'Bearer {token()}'}
@@ -41,7 +41,7 @@ def test_get_user_200_ok(client, create_user, token):
     assert 'updated_at' in content
 
 
-def test_post_user_201_created(client, fake, token):
+def test_success_post_user(client, fake, token):
 
     headers = {'Authorization': f'Bearer {token()}'}
     json = {
@@ -65,7 +65,7 @@ def test_post_user_201_created(client, fake, token):
     assert 'updated_at' in content
 
 
-def test_patch_user_202_accepted(client, create_user, fake, token):
+def test_success_patch_user(client, create_user, fake, token):
 
     user = create_user()
     json = {
@@ -88,7 +88,7 @@ def test_patch_user_202_accepted(client, create_user, fake, token):
     assert content['updated_at'] > content['created_at']
 
 
-def test_delete_user_204_no_content(client, create_user, token):
+def test_success_delete_user(client, create_user, token):
 
     user = create_user()
     headers = {'Authorization': f'Bearer {token()}'}
@@ -99,7 +99,7 @@ def test_delete_user_204_no_content(client, create_user, token):
     assert status_code == 204
 
 
-def test_put_user_200_ok(client, create_user, fake, token):
+def test_success_put_user(client, create_user, fake, token):
 
     user = create_user()
     json = {
@@ -124,7 +124,7 @@ def test_put_user_200_ok(client, create_user, fake, token):
     assert content['updated_at'] > content['created_at']
 
 
-def test_put_user_422_missing_fields(client, create_user, fake, token):
+def test_fail_put_user_missing_fields(client, create_user, fake, token):
 
     user = create_user()
     json = {'email': fake.email()}
@@ -139,7 +139,7 @@ def test_put_user_422_missing_fields(client, create_user, fake, token):
     assert content['detail'][0]['type'] == 'missing'
 
 
-def test_user_422_invalid_pk(client, fake, token):
+def test_fail_user_invalid_pk(client, fake, token):
 
     invalid_pk = fake.word()
     headers = {'Authorization': f'Bearer {token()}'}
@@ -160,7 +160,7 @@ def test_user_422_invalid_pk(client, fake, token):
     assert delete.status_code == 422 and delete_response['type'] == 'uuid_parsing'
 
 
-def test_user_404_pk_not_found(client, fake, token):
+def test_fail_user_pk_not_found(client, fake, token):
 
     valid_pk = fake.uuid4()
     headers = {'Authorization': f'Bearer {token()}'}
@@ -191,7 +191,7 @@ def test_user_404_pk_not_found(client, fake, token):
     assert patch.status_code == 404 and patch_response == f'No record with pk {valid_pk}'
 
 
-def test_user_409_email_already_registered(client, fake, create_specific_user, create_user, token):
+def test_fail_user_email_already_registered(client, fake, create_specific_user, create_user, token):
 
     email = fake.email()
     create_specific_user(
@@ -226,7 +226,7 @@ def test_user_409_email_already_registered(client, fake, create_specific_user, c
     assert patch.status_code == 409 and patch_response == f'Email {email} already registered'
 
 
-def test_user_422_invalid_email(client, fake, token, create_user):
+def test_fail_user_invalid_email(client, fake, token, create_user):
 
     email = fake.word()
     user = create_user()
@@ -255,7 +255,7 @@ def test_user_422_invalid_email(client, fake, token, create_user):
     assert patch.status_code == 422 and patch_response == 'value is not a valid email address: An email address must have an @-sign.'
 
 
-def test_user_422_email_not_null(client, create_user, token):
+def test_fail_user_email_not_null(client, create_user, token):
 
     user = create_user()
     headers = {'Authorization': f'Bearer {token()}'}
