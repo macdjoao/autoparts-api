@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 1 * 1  # (minutos * horas * dias)
     ALGORITHM: str
     SECRET_KEY: str
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
 
     @property
     def DB_URL(self) -> str:
