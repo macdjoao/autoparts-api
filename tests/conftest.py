@@ -65,8 +65,8 @@ def create_specific_user(session):
     def _create_specific_user(email, first_name, last_name, hashed_password):
         user = User(
             email=email,
-            first_name=first_name,
-            last_name=last_name,
+            first_name=first_name.capitalize(),
+            last_name=last_name.capitalize(),
             hashed_password=get_password_hash(hashed_password)
         )
         session.add(user)
@@ -98,3 +98,20 @@ def token(create_specific_user, fake, client):
 
         return response.json()['access_token']
     return _token
+
+
+@pytest.fixture
+def create_named_user(session, fake):
+    def _create_named_user(first_name, is_active=True):
+        user = User(
+            email=fake.email(),
+            first_name=first_name.capitalize(),
+            last_name=fake.last_name(),
+            hashed_password=get_password_hash(fake.password()),
+            is_active=is_active
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
+    return _create_named_user
