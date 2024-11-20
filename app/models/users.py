@@ -3,7 +3,7 @@ import uuid
 from typing import Optional
 
 from pydantic import EmailStr, field_validator, BaseModel
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
 
 # Only inherit from data models, don't inherit from table models. (https://sqlmodel.tiangolo.com/tutorial/fastapi/multiple-models/#inheritance-and-table-models)
 
@@ -35,6 +35,17 @@ class User(UserBase, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(
         timezone.utc), nullable=False, sa_column_kwargs={'onupdate': lambda: datetime.now(timezone.utc)})
     hashed_password: str = Field(nullable=False)
+
+    # Relacionamentos
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
+    manufacturer_creator: list['Manufacturer'] = Relationship(
+        back_populates='creator',
+        sa_relationship_kwargs={'foreign_keys': 'Manufacturer.created_by'}
+    )
+    manufacturer_updater: list['Manufacturer'] = Relationship(
+        back_populates='updater',
+        sa_relationship_kwargs={'foreign_keys': 'Manufacturer.updated_by'}
+    )
 
 
 class UserCreate(UserBase):

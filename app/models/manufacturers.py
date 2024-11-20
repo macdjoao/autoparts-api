@@ -2,7 +2,9 @@ from datetime import datetime, timezone
 import uuid
 
 from pydantic import field_validator
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
+
+from app.models.users import User
 
 
 class ManufacturerBase(SQLModel):
@@ -35,6 +37,17 @@ class Manufacturer(ManufacturerBase, table=True):
     )
     created_by: uuid.UUID = Field(foreign_key='users.pk')
     updated_by: uuid.UUID = Field(foreign_key='users.pk')
+
+    # Relacionamentos (permite acessar User a partir de created_by/updated_by)
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
+    creator: User = Relationship(
+        back_populates='manufacturer_creator',
+        sa_relationship_kwargs={'foreign_keys': 'Manufacturer.created_by'}
+    )
+    updater: User = Relationship(
+        back_populates='manufacturer_updater',
+        sa_relationship_kwargs={'foreign_keys': 'Manufacturer.updated_by'}
+    )
 
 
 class ManufacturerCreate(ManufacturerBase):
