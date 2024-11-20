@@ -186,3 +186,27 @@ async def patch_manufacturer(
         raise exc
     except Exception:
         raise_internal_server_error_exception()
+
+
+@router.delete(
+    '/{pk}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Deleta fabricante',
+    description='Deleta uma fabricante previamente cadastrada no sistema.'
+)
+async def delete_manufacturer(
+    pk: UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session)
+):
+    try:
+        db_manufacturer = session.get(Manufacturer, pk)
+        if db_manufacturer:
+            session.delete(db_manufacturer)
+            session.commit()
+            return
+        raise_pk_not_found_exception(pk=pk)
+    except HTTPException as exc:
+        raise exc
+    except Exception:
+        raise_internal_server_error_exception()
