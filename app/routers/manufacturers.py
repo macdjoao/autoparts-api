@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 from app.models.manufacturers import ManufacturerPublic, Manufacturer, ManufacturerCreate
 from app.models.users import User
 from app.utils.dependencies import get_session
-from app.utils.exceptions import raise_internal_server_error_exception, raise_name_already_registered_exception
+from app.utils.exceptions import raise_internal_server_error_exception, raise_name_already_registered_exception, raise_pk_not_found_exception
 from app.security.auth import get_current_active_user
 
 
@@ -78,4 +78,26 @@ async def post_manufacturer(
     except HTTPException as exc:
         raise exc
     except Exception as exc:
+        raise_internal_server_error_exception()
+
+
+@router.get(
+    '/{pk}',
+    response_model=ManufacturerPublic,
+    summary='Busca fabricante',
+    description='Busca uma fabricante cadastrada no sistema, baseado em sua chave primária'
+)
+async def get_manufacturer(
+    pk: UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+):
+    try:
+        db_manufacturer = session.get(Manufacturer, pk)
+        if db_manufacturer:
+            return db_manufacturer
+        raise_pk_not_found_exception(pk=pk)
+    except HTTPException as exc:
+        raise exc
+    except Exception:
         raise_internal_server_error_exception()
