@@ -40,3 +40,16 @@ def test_manufacturers_post(client, token, fake):
     assert 'updated_at' in content
     assert 'created_by' in content
     assert 'updated_by' in content
+
+
+def test_manufacturers_post_name_already_registered(client, token, create_manufacturer):
+
+    manufacturer = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token()}'}
+    json = {'name': manufacturer.name}
+
+    response = client.post(url=manufacturers_url, headers=headers, json=json)
+    content = response.json()
+
+    assert response.status_code == 409
+    assert content['detail'] == f'Name {manufacturer.name} already registered'
