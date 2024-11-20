@@ -202,7 +202,11 @@ async def delete_manufacturer(
     try:
         db_manufacturer = session.get(Manufacturer, pk)
         if db_manufacturer:
-            session.delete(db_manufacturer)
+            # Deleção literal
+            # session.delete(db_manufacturer)
+            # session.commit()
+            db_manufacturer.is_active = False
+            session.add(db_manufacturer)
             session.commit()
             return
         raise_pk_not_found_exception(pk=pk)
