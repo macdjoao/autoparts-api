@@ -40,6 +40,7 @@ class Manufacturer(ManufacturerBase, table=True):
 
     # Relacionamentos (permite acessar User a partir de created_by/updated_by)
     # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/back-populates/
     creator: User = Relationship(
         back_populates='manufacturer_creator',
         sa_relationship_kwargs={'foreign_keys': 'Manufacturer.created_by'}

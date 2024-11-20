@@ -38,6 +38,7 @@ class User(UserBase, table=True):
 
     # Relacionamentos
     # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/back-populates/
     manufacturer_creator: list['Manufacturer'] = Relationship(
         back_populates='creator',
         sa_relationship_kwargs={'foreign_keys': 'Manufacturer.created_by'}
