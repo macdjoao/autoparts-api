@@ -23,6 +23,46 @@ def test_manufacturers_get_list(client, create_manufacturer, token):
     assert 'is_active' in manufacturer
 
 
+def test_manufacturers_get_filtered(client, create_manufacturer, token):
+
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    pk_manufacturer = create_manufacturer()
+    pk_response = client.get(
+        url=manufacturers_url,
+        headers=headers,
+        params={'pk': pk_manufacturer.pk}
+    )
+    pk_content = pk_response.json()[0]
+
+    name_manufacturer = create_manufacturer()
+    name_response = client.get(
+        url=manufacturers_url,
+        headers=headers,
+        params={'name': name_manufacturer.name}
+    )
+    name_content = name_response.json()[0]
+
+    is_active_manufacturer = create_manufacturer()
+    is_active_response = client.get(
+        url=manufacturers_url,
+        headers=headers,
+        params={'is_active': is_active_manufacturer.is_active}
+    )
+    is_active_content = is_active_response.json()[0]
+
+    assert pk_response.status_code == 200
+    assert str(pk_manufacturer.pk) == pk_content.get('pk')
+
+    assert name_response.status_code == 200
+    assert name_manufacturer.name == name_content.get('name')
+
+    assert is_active_response.status_code == 200
+    assert is_active_manufacturer.is_active == is_active_content.get(
+        'is_active'
+    )
+
+
 def test_manufacturers_post(client, token, fake):
 
     headers = {'Authorization': f'Bearer {token()}'}
