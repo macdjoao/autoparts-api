@@ -39,12 +39,16 @@ class User(UserBase, table=True):
     # Relacionamentos
     # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
     # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/back-populates/
+    # cascade_delete serve para o SQLModel deletar manufacturers ligadas ao user quando este for deletado
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/cascade-delete-relationships/#set-ondelete-to-cascade
     manufacturer_creator: list['Manufacturer'] = Relationship(
         back_populates='creator',
+        cascade_delete=True,
         sa_relationship_kwargs={'foreign_keys': 'Manufacturer.created_by'}
     )
     manufacturer_updater: list['Manufacturer'] = Relationship(
         back_populates='updater',
+        cascade_delete=True,
         sa_relationship_kwargs={'foreign_keys': 'Manufacturer.updated_by'}
     )
 

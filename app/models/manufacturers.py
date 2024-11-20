@@ -35,8 +35,10 @@ class Manufacturer(ManufacturerBase, table=True):
         nullable=False,
         sa_column_kwargs={'onupdate': lambda: datetime.now(timezone.utc)}
     )
-    created_by: uuid.UUID = Field(foreign_key='users.pk')
-    updated_by: uuid.UUID = Field(foreign_key='users.pk')
+    # ondelete serve para dizer ao banco de dados o que fazer caso um registro seja deletado diretamente na base de dados, sem passar pela API
+    # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/cascade-delete-relationships/#ondelete-options
+    created_by: uuid.UUID = Field(foreign_key='users.pk', ondelete='CASCADE')
+    updated_by: uuid.UUID = Field(foreign_key='users.pk', ondelete='CASCADE')
 
     # Relacionamentos (permite acessar User a partir de created_by/updated_by)
     # https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#declare-relationship-attributes
