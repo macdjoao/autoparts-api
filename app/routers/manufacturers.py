@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query, status, Depends
 from sqlmodel import Session, select
 
-from app.models.manufacturers import ManufacturerPublic, Manufacturer, ManufacturerCreate
+from app.models.manufacturers import ManufacturerPublic, Manufacturer, ManufacturerCreate, ManufacturerUpdate
 from app.models.users import User
 from app.utils.dependencies import get_session
 from app.utils.exceptions import raise_internal_server_error_exception, raise_name_already_registered_exception, raise_pk_not_found_exception
@@ -97,6 +97,48 @@ async def get_manufacturer(
         if db_manufacturer:
             return db_manufacturer
         raise_pk_not_found_exception(pk=pk)
+    except HTTPException as exc:
+        raise exc
+    except Exception:
+        raise_internal_server_error_exception()
+
+
+@router.put(
+    '/{pk}',
+    response_model=ManufacturerPublic,
+    summary='Atualiza fabricante',
+    description='Atualiza uma fabricante previamente cadastrada no sistema.'
+)
+async def put_manufacturer(
+    pk: UUID,
+    manufacturer: ManufacturerUpdate,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session)
+):
+    try:
+
+        db_manufacturer = session.get(Manufacturer, pk)
+        if not db_manufacturer:
+            raise_pk_not_found_exception(pk=pk)
+
+        name_already_registered = session.exec(select(Manufacturer).where(
+            Manufacturer.name == manufacturer.name,
+            Manufacturer.pk != pk)
+        ).first()
+        if name_already_registered:
+            raise raise_name_already_registered_exception(
+                name=manufacturer.name)
+
+        manufacturer_data = manufacturer.model_dump()
+
+        db_manufacturer.sqlmodel_update(manufacturer_data)
+
+        session.add(db_manufacturer)
+        session.commit()
+        session.refresh(db_manufacturer)
+
+        return db_manufacturer
+
     except HTTPException as exc:
         raise exc
     except Exception:
