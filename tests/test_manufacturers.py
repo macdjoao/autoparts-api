@@ -53,3 +53,24 @@ def test_manufacturers_post_name_already_registered(client, token, create_manufa
 
     assert response.status_code == 409
     assert content['detail'] == f'Name {manufacturer.name} already registered'
+
+
+def test_manufacturers_get_one(client, create_manufacturer, token):
+
+    manufacturer = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.get(
+        url=f'{manufacturers_url}/{manufacturer.pk}',
+        headers=headers
+    )
+    content = response.json()
+
+    assert response.status_code == 200
+    assert content['pk'] == str(manufacturer.pk)
+    assert content['name'] == manufacturer.name
+    assert content['is_active'] == manufacturer.is_active
+    assert content['created_by'] == str(manufacturer.created_by)
+    assert content['updated_by'] == str(manufacturer.updated_by)
+    assert 'created_at' in content
+    assert 'updated_at' in content
