@@ -42,3 +42,11 @@ def raise_credentials_exception() -> HTTPException:
         headers={'WWW-Authenticate': 'Bearer'},
     )
     raise credentials_exception
+
+
+def raise_name_already_registered_exception(name: str) -> HTTPException:
+    name_already_registered_exception = HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f'Name {name} already registered',
+    )
+    raise name_already_registered_exception
