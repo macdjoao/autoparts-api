@@ -52,3 +52,22 @@ class ManufacturerPublic(ManufacturerBase):
 
 class ManufacturerUpdate(ManufacturerBase):
     is_active: bool
+
+
+class ManufacturerPartialUpdate(ManufacturerBase):
+    name: str | None = None
+    is_active: bool | None = None
+
+    @field_validator('name')
+    @classmethod
+    def name_not_none(cls, v: str | None) -> str | None:
+        if v is None:
+            raise ValueError('name field cannot be null')
+        return v
+
+    @field_validator('is_active')
+    @classmethod
+    def is_active_not_none(cls, v: bool | None) -> bool | None:
+        if v is None:
+            raise ValueError('is_active field cannot be null')
+        return v
