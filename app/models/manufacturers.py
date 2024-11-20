@@ -35,3 +35,20 @@ class Manufacturer(ManufacturerBase, table=True):
     )
     created_by: uuid.UUID = Field(foreign_key='users.pk')
     updated_by: uuid.UUID = Field(foreign_key='users.pk')
+
+
+class ManufacturerCreate(ManufacturerBase):
+    pass
+
+
+class ManufacturerPublic(ManufacturerBase):
+    pk: uuid.UUID
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    created_by: uuid.UUID
+    updated_by: uuid.UUID
+
+
+class ManufacturerUpdate(ManufacturerBase):
+    is_active: bool
