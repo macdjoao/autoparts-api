@@ -215,6 +215,9 @@ async def delete_user(
     try:
         db_user = session.get(User, pk)
         if db_user:
+            # Deleção literal
+            # session.delete(db_user)
+            # session.commit()
             db_user.is_active = False
             session.add(db_user)
             session.commit()
