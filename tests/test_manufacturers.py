@@ -114,3 +114,56 @@ def test_manufacturers_get_one(client, create_manufacturer, token):
     assert content['updated_by'] == str(manufacturer.updated_by)
     assert 'created_at' in content
     assert 'updated_at' in content
+
+
+def test_manufacturers_put(client, create_manufacturer, fake, token):
+
+    manufacturer = create_manufacturer()
+    json = {
+        'name': fake.word().capitalize(),
+        'is_active': fake.boolean(),
+    }
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    response = client.put(
+        url=f'{manufacturers_url}/{manufacturer.pk}',
+        json=json,
+        headers=headers
+    )
+    status_code = response.status_code
+    content = response.json()
+
+    assert status_code == 200
+    assert content['name'] == json['name']
+    assert content['is_active'] == json['is_active']
+    assert content['updated_at'] > content['created_at']
+
+
+def test_manufacturers_put_missing_fields(client, create_manufacturer, fake, token):
+
+    manufacturer = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    missing_is_active_json = {'name': fake.word()}
+    missing_is_active_response = client.put(
+        f'{manufacturers_url}/{manufacturer.pk}',
+        json=missing_is_active_json,
+        headers=headers
+    )
+    missing_is_active_content = missing_is_active_response.json()
+
+    missing_name_json = {'is_active': fake.boolean()}
+    missing_name_response = client.put(
+        f'{manufacturers_url}/{manufacturer.pk}',
+        json=missing_name_json,
+        headers=headers
+    )
+    missing_name_content = missing_name_response.json()
+
+    assert missing_is_active_response.status_code == 422
+    assert missing_is_active_content['detail'][0]['type'] == 'missing'
+    assert missing_is_active_content['detail'][0]['loc'][1] == 'is_active'
+
+    assert missing_name_response.status_code == 422
+    assert missing_name_content['detail'][0]['type'] == 'missing'
+    assert missing_name_content['detail'][0]['loc'][1] == 'name'
