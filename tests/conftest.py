@@ -5,6 +5,7 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
 from app.main import app
+from app.models.manufacturers import Manufacturer
 from app.models.users import User
 from app.utils.dependencies import get_session
 from app.security.auth import get_password_hash
@@ -118,3 +119,19 @@ def create_named_user(session, fake):
         session.refresh(user)
         return user
     return _create_named_user
+
+
+@pytest.fixture
+def create_manufacturer(fake, session, create_user):
+    def _create_manufacturer():
+        user = create_user()
+        manufacturer = Manufacturer(
+            name=fake.word(),
+            created_by=user.pk,
+            updated_by=user.pk
+        )
+        session.add(manufacturer)
+        session.commit()
+        session.refresh(manufacturer)
+        return manufacturer
+    return _create_manufacturer
