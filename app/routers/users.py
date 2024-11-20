@@ -215,7 +215,8 @@ async def delete_user(
     try:
         db_user = session.get(User, pk)
         if db_user:
-            session.delete(db_user)
+            db_user.is_active = False
+            session.add(db_user)
             session.commit()
             return  # O retorno de um endpoint de verbo DELETE deve ser apenas o status code
         raise_pk_not_found_exception(pk=pk)
