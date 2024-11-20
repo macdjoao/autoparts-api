@@ -188,6 +188,19 @@ def test_manufacturers_patch(client, create_manufacturer, fake, token):
     assert name_content['updated_at'] > name_content['created_at']
 
 
+def test_manufacturers_delete(client, create_manufacturer, token):
+
+    manufacturer = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token(is_admin=True)}'}
+
+    response = client.delete(
+        url=f'{manufacturers_url}/{manufacturer.pk}',
+        headers=headers
+    )
+
+    assert response.status_code == 204
+
+
 def test_manufacturers_all_name_already_registered(client, token, create_manufacturer, fake):
 
     ford = create_manufacturer()
