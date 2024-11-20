@@ -126,7 +126,7 @@ def create_manufacturer(fake, session, create_user):
     def _create_manufacturer():
         user = create_user()
         manufacturer = Manufacturer(
-            name=fake.word(),
+            name=fake.word().capitalize(),
             created_by=user.pk,
             updated_by=user.pk
         )
