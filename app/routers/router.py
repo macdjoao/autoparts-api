@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.utils.settings import settings
-from app.routers import token, users
+from app.routers import token, users, manufacturers
 
 
 # Arquivo criado para unificar as rotas dos endpoints
@@ -11,5 +11,6 @@ router = APIRouter(
     prefix=settings.URI_PREFIX
 )
 
-router.include_router(users.router)
 router.include_router(token.router)
+router.include_router(users.router)
+router.include_router(manufacturers.router)
