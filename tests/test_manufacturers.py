@@ -82,19 +82,6 @@ def test_manufacturers_post(client, token, fake):
     assert 'updated_by' in content
 
 
-def test_manufacturers_post_name_already_registered(client, token, create_manufacturer):
-
-    manufacturer = create_manufacturer()
-    headers = {'Authorization': f'Bearer {token()}'}
-    json = {'name': manufacturer.name}
-
-    response = client.post(url=manufacturers_url, headers=headers, json=json)
-    content = response.json()
-
-    assert response.status_code == 409
-    assert content['detail'] == f'Name {manufacturer.name} already registered'
-
-
 def test_manufacturers_get_one(client, create_manufacturer, token):
 
     manufacturer = create_manufacturer()
@@ -167,3 +154,75 @@ def test_manufacturers_put_missing_fields(client, create_manufacturer, fake, tok
     assert missing_name_response.status_code == 422
     assert missing_name_content['detail'][0]['type'] == 'missing'
     assert missing_name_content['detail'][0]['loc'][1] == 'name'
+
+
+def test_manufacturers_patch(client, create_manufacturer, fake, token):
+
+    manufacturer = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    is_active = fake.boolean()
+    is_active_json = {'is_active': is_active}
+    is_active_response = client.patch(
+        url=f'{manufacturers_url}/{manufacturer.pk}',
+        json=is_active_json,
+        headers=headers
+    )
+    is_active_content = is_active_response.json()
+
+    name = fake.word().capitalize()
+    name_json = {'name': name}
+    name_response = client.patch(
+        url=f'{manufacturers_url}/{manufacturer.pk}',
+        json=name_json,
+        headers=headers
+    )
+    name_content = name_response.json()
+
+    assert is_active_response.status_code == 202
+    assert is_active_content['is_active'] == is_active_json['is_active']
+    assert is_active_content['updated_at'] > is_active_content['created_at']
+
+    assert name_response.status_code == 202
+    assert name_content['name'] == name_json['name']
+    assert name_content['updated_at'] > name_content['created_at']
+
+
+def test_manufacturers_all_name_already_registered(client, token, create_manufacturer, fake):
+
+    ford = create_manufacturer()
+    chevrolet = create_manufacturer()
+    headers = {'Authorization': f'Bearer {token()}'}
+
+    post_json = {'name': ford.name}
+    post_response = client.post(
+        url=manufacturers_url,
+        headers=headers,
+        json=post_json
+    )
+    post_content = post_response.json()
+
+    put_json = {'name': chevrolet.name, 'is_active': fake.boolean()}
+    put_response = client.put(
+        url=f'{manufacturers_url}/{ford.pk}',
+        headers=headers,
+        json=put_json
+    )
+    put_content = put_response.json()
+
+    patch_json = {'name': chevrolet.name}
+    patch_response = client.patch(
+        url=f'{manufacturers_url}/{ford.pk}',
+        headers=headers,
+        json=patch_json
+    )
+    patch_content = patch_response.json()
+
+    assert post_response.status_code == 409
+    assert post_content['detail'] == f'Name {ford.name} already registered'
+
+    assert put_response.status_code == 409
+    assert put_content['detail'] == f'Name {chevrolet.name} already registered'
+
+    assert patch_response.status_code == 409
+    assert patch_content['detail'] == f'Name {chevrolet.name} already registered'
