@@ -1,3 +1,4 @@
+import redis
 from sqlmodel import create_engine, Session
 
 from app.utils.settings import settings
@@ -12,3 +13,13 @@ def get_session():
         yield session
     finally:
         session.close()
+
+
+def get_redis() -> redis.Redis:
+    r = redis.Redis(
+        # host=settings.CACHE_HOST,
+        # port=settings.CACHE_DB,
+        db=settings.CACHE_DB,
+        decode_responses=True
+    )
+    return r
