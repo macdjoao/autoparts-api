@@ -1,10 +1,14 @@
+import json
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status, Depends
 # from fastapi import Path, Query, Header       TODO: Fazer alguns testes com essas funções - https://sqlmodel.tiangolo.com/tutorial/fastapi/limit-and-offset/
+from fastapi.encoders import jsonable_encoder
+import redis
 from sqlmodel import Session, select
 
-from app.utils.dependencies import get_session
+from app.utils.settings import settings
+from app.utils.dependencies import get_redis, get_session
 from app.security.auth import get_current_active_user, get_password_hash, is_admin
 from app.models.users import User, UserCreate, UserFilter, UserPublic, UserUpdate, UserPartialUpdate
 from app.utils.exceptions import raise_email_already_registered_exception, raise_internal_server_error_exception, raise_pk_not_found_exception
@@ -30,10 +34,18 @@ router = APIRouter(
 async def get_users(
     current_user: User = Depends(get_current_active_user),
     filters: UserFilter = Depends(),
+    # Redis será usado para prover cache, aumentando a performance das aplicações ao reutilizar informações evitando acessos ao banco de dados
+    cache: redis.Redis = Depends(get_redis),
     session: Session = Depends(get_session)
 ):
     try:
         # status_code padrão é 200, estou explicitando só para frisar a existência do parâmetro
+
+        cache_key = f'user_filters:{json.dumps(filters.model_dump(), sort_keys=True)}'
+        cached_users = cache.get(cache_key)
+        if cached_users:
+            return json.loads(cached_users)
+
         query = select(User)
         if filters.pk:
             query = query.where(User.pk == filters.pk)
@@ -48,6 +60,14 @@ async def get_users(
         if filters.is_admin is not None:
             query = query.where(User.is_admin == filters.is_admin)
         db_users = session.exec(query).all()
+
+        data_to_cache = jsonable_encoder(db_users)
+        cache.setex(
+            name=cache_key,
+            time=settings.CACHE_TIME_TO_EXP,
+            value=json.dumps(data_to_cache)
+        )
+
         return db_users
     except Exception:
         raise_internal_server_error_exception()
