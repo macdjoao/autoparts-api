@@ -44,7 +44,7 @@ def fake():
 
 
 @pytest.fixture
-def create_user(fake, session):
+def create_user(fake, session) -> User:
     def _create_user():
         user = User(
             email=fake.email(),
@@ -61,7 +61,7 @@ def create_user(fake, session):
 
 @pytest.fixture
 # Recebe outras fixtures como parametro
-def create_specific_user(session):
+def create_specific_user(session) -> User:
     # Recebe parametros "comuns"
     def _create_specific_user(email, first_name, last_name, hashed_password, is_admin=False):
         user = User(
@@ -104,7 +104,7 @@ def token(create_specific_user, fake, client):
 
 
 @pytest.fixture
-def create_named_user(session, fake):
+def create_named_user(session, fake) -> User:
     def _create_named_user(first_name, is_active=True, is_admin=False):
         user = User(
             email=fake.email(),
@@ -122,7 +122,7 @@ def create_named_user(session, fake):
 
 
 @pytest.fixture
-def create_manufacturer(fake, session, create_user):
+def create_manufacturer(fake, session, create_user) -> Manufacturer:
     def _create_manufacturer():
         user = create_user()
         manufacturer = Manufacturer(
