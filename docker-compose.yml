@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:17.2-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: autopartsdb
+    ports:
+      - 5432:5432
+
+  cache:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+
+  pgadmin4:
+      image: elestio/pgadmin:latest
+      environment:
+        PGADMIN_DEFAULT_EMAIL: postgres@mail.com
+        PGADMIN_DEFAULT_PASSWORD: postgres
+        PGADMIN_LISTEN_PORT: 8080
+      ports:
+      - 8080:8080
