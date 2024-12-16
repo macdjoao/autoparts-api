@@ -61,6 +61,16 @@ class User(UserBase, table=True):
         cascade_delete=True,
         sa_relationship_kwargs={'foreign_keys': 'Vehicle.updated_by'}
     )
+    part_creator: list['Part'] = Relationship(
+        back_populates='creator',
+        cascade_delete=True,
+        sa_relationship_kwargs={'foreign_keys': 'Part.created_by'}
+    )
+    part_updater: list['Part'] = Relationship(
+        back_populates='updater',
+        cascade_delete=True,
+        sa_relationship_kwargs={'foreign_keys': 'Part.updated_by'}
+    )
 
 
 class UserCreate(UserBase):

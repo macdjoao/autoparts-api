@@ -47,6 +47,7 @@ class Vehicle(VehicleBase, table=True):
     created_by: uuid.UUID = Field(foreign_key='users.pk', ondelete='CASCADE')
     updated_by: uuid.UUID = Field(foreign_key='users.pk', ondelete='CASCADE')
     manufacturer_pk: uuid.UUID = Field(foreign_key='manufacturers.pk', ondelete='CASCADE')
+    part_pk: uuid.UUID = Field(foreign_key='parts.pk', ondelete='CASCADE')
 
     creator: User = Relationship(
         back_populates='vehicle_creator',
@@ -59,4 +60,9 @@ class Vehicle(VehicleBase, table=True):
     manufacturer: Manufacturer = Relationship(
         back_populates='vehicle_manufacturer',
         sa_relationship_kwargs={'foreign_keys': 'Vehicle.manufacturer_pk'}
+    )
+    part_vehicle: list['Part'] = Relationship(
+        back_populates='vehicle',
+        cascade_delete=True,
+        sa_relationship_kwargs={'foreign_keys': 'Part.vehicle_pk'}
     )
