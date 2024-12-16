@@ -51,6 +51,11 @@ class Manufacturer(ManufacturerBase, table=True):
         back_populates='manufacturer_updater',
         sa_relationship_kwargs={'foreign_keys': 'Manufacturer.updated_by'}
     )
+    vehicle_manufacturer: list['Vehicle'] = Relationship(
+        back_populates='manufacturer',
+        cascade_delete=True,
+        sa_relationship_kwargs={'foreign_keys': 'Vehicle.manufacturer_pk'}
+    )
 
 
 class ManufacturerCreate(ManufacturerBase):
